@@ -29,8 +29,10 @@
         .form-control, .form-select { background-color: #2a2e38 !important; border-color: #444 !important; color: #ffffff !important; }
         .form-control::placeholder { color: #888 !important; }
         
-        .wa-icon { color: #25d366; font-size: 1.3rem; cursor: pointer; }
-        .del-icon { color: #ff5252; font-size: 1.1rem; cursor: pointer; }
+        .wa-icon { color: #25d366; font-size: 1.25rem; cursor: pointer; transition: transform 0.2s; }
+        .sms-icon { color: #38bdf8; font-size: 1.25rem; cursor: pointer; transition: transform 0.2s; }
+        .del-icon { color: #ff5252; font-size: 1.1rem; cursor: pointer; transition: transform 0.2s; }
+        .wa-icon:hover, .sms-icon:hover, .del-icon:hover { transform: scale(1.15); }
         .list-item { background: var(--card-bg); padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-right: 4px solid #17a2b8; }
         #loading-overlay { position: fixed; inset: 0; background: #0a0e17; display: none; justify-content: center; align-items: center; z-index: 9999; }
         
@@ -117,7 +119,7 @@
                 </div>
                 <textarea id="dNotes" class="form-control mb-2" placeholder="ملاحظات فنية..."></textarea>
                 <div class="row g-2">
-                    <div class="col-6"><input type="number" id="cPhone" class="form-control" placeholder="رقم الموبايل"></div>
+                    <div class="col-6"><input type="tel" id="cPhone" class="form-control" placeholder="رقم الموبايل"></div>
                     <div class="col-6"><input type="number" id="dCost" class="form-control" placeholder="التكلفة"></div>
                 </div>
             </div>
@@ -135,7 +137,7 @@
                 <label class="small text-info">اسم العميل:</label>
                 <input type="text" id="editCName" class="form-control mb-2">
                 <label class="small text-info">رقم الموبايل:</label>
-                <input type="number" id="editCPhone" class="form-control mb-2">
+                <input type="tel" id="editCPhone" class="form-control mb-2">
                 <label class="small text-info">الملحقات:</label>
                 <input type="text" id="editAccessories" class="form-control mb-2">
                 
@@ -177,7 +179,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // الرابط الأساسي بدون سلاش في الآخر لمنع مشاكل الـ CORS
     const BASE_DB_URL = "https://repairshop-e2483-default-rtdb.firebaseio.com"; 
 
     document.getElementById('addDevModal').addEventListener('show.bs.modal', function () {
@@ -185,14 +186,10 @@
         document.getElementById('dReceiveDate').value = today;
     });
 
-    // دالة الاتصال المعدلة بالكامل لطلب ملفات الـ JSON الصريحة وحماية الصفحة من الانهيار
     async function api(path, method = "GET", body = null) {
         try {
             document.getElementById('loading-overlay').style.display = 'flex';
-            
-            // التأكد من صياغة الرابط بشكل سليم 100% للسيرفر
             const fullUrl = `${BASE_DB_URL}/${path}.json`;
-            
             const options = { 
                 method, 
                 headers: { 'Content-Type': 'application/json' } 
@@ -212,11 +209,9 @@
     }
 
     async function loadAll() {
-        // طلب ملف الـ data.json مباشرة لمنع مشاكل التوجيه
         const data = await api("data");
         
         if (!data) {
-            // إذا فشل الاتصال، الصفحة هتفتح برضه بس هتديك الرسالة دي عشان تعرف السبب
             document.getElementById('devContainer').innerHTML = `
                 <div class="alert alert-warning text-center m-3">
                     <h5>تنبيه من السيرفر:</h5>
@@ -277,13 +272,16 @@
                     ${d.notes ? `<div class="notes-area"><b>ملاحظة:</b> ${escapeHtml(d.notes)}</div>` : ''}
                     <div class="d-flex justify-content-between align-items-center mt-2">
                         <span class="fw-bold text-white">${d.cost || 0} ج.م</span>
-                        <div>
-                            <i class="fab fa-whatsapp wa-icon me-2" onclick="event.stopPropagation(); sendWA('${d.phone}','${d.name}','${d.status}')"></i>
-                            <i class="fas fa-trash-alt del-icon" onclick="event.stopPropagation(); deleteItem('devices/${d.id}')"></i>
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="fas fa-comment-dots sms-icon" title="إرسال SMS" onclick="event.stopPropagation(); sendSMS('${d.id}')"></i>
+                            <i class="fab fa-whatsapp wa-icon" title="إرسال واتساب" onclick="event.stopPropagation(); sendWA('${d.id}')"></i>
+                            <i class="fas fa-trash-alt del-icon" title="حذف" onclick="event.stopPropagation(); deleteItem('devices/${d.id}')"></i>
                         </div>
                     </div>
                 </div>`;
         });
+
+        window.currentDevices = db.devices || {};
 
         const partsCont = document.getElementById('partsContainer');
         partsCont.innerHTML = '';
@@ -370,7 +368,59 @@
     }
 
     async function deleteItem(path) { if(confirm('حذف نهائي؟')) { await api(`data/${path}`, "DELETE"); loadAll(); } }
-    function sendWA(p,n,s) { if(!p) return alert("لا يوجد رقم"); window.open(`https://wa.me/20${p}?text=أهلاً أ/ ${n}, حالة جهازك الآن: ${s}`); }
+    
+    function buildMessage(d, isWhatsApp = true) {
+        const clientName = d.name || 'عميلنا العزيز';
+        const status = d.status || 'غير محدد';
+        const fault = d.fault || 'غير محدد';
+        const accessories = d.accessories || 'لا يوجد';
+        const receiveDate = d.receiveDate || 'غير محدد';
+        const deliveryDate = d.deliveryDate || 'غير محدد';
+        const cost = d.cost ? `${d.cost} ج.م` : 'لم تحدد بعد';
+
+        if (isWhatsApp) {
+            let msg = `*الأستاذ / ${clientName}* 🌸\n\n`;
+            msg += `📍 *حالة الجهاز:* ${status}\n`;
+            msg += `🔧 *العطل:* ${fault}\n`;
+            msg += `🔌 *ملحقات الجهاز:* ${accessories}\n`;
+            msg += `📥 *تاريخ الاستلام:* ${receiveDate}\n`;
+            msg += `📤 *تاريخ التسليم المتوقع:* ${deliveryDate}\n`;
+            msg += `💰 *تكلفة الصيانة:* *${cost}*\n\n`;
+            msg += `سنترال محمد الجنبيهي يرحب بكم دائماً ✨`;
+            return msg;
+        } else {
+            let msg = `الأستاذ/ ${clientName}\n`;
+            msg += `حالة الجهاز: ${status}\n`;
+            msg += `العطل: ${fault}\n`;
+            msg += `الملحقات: ${accessories}\n`;
+            msg += `الاستلام: ${receiveDate}\n`;
+            msg += `التسليم: ${deliveryDate}\n`;
+            msg += `التكلفة: ${cost}\n`;
+            msg += `سنترال محمد الجنبيهي`;
+            return msg;
+        }
+    }
+
+    function sendWA(id) {
+        const d = (window.currentDevices && window.currentDevices[id]) ? window.currentDevices[id] : null;
+        if (!d || !d.phone) return alert("لا يوجد رقم هاتف مسجل لهذا العميل");
+
+        const message = buildMessage(d, true);
+        const phone = d.phone.startsWith('0') ? d.phone.substring(1) : d.phone;
+        window.open(`https://wa.me/20${phone}?text=${encodeURIComponent(message)}`);
+    }
+
+    function sendSMS(id) {
+        const d = (window.currentDevices && window.currentDevices[id]) ? window.currentDevices[id] : null;
+        if (!d || !d.phone) return alert("لا يوجد رقم هاتف مسجل لهذا العميل");
+
+        const message = buildMessage(d, false);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const separator = isIOS ? '&' : '?';
+        
+        window.location.href = `sms:${d.phone}${separator}body=${encodeURIComponent(message)}`;
+    }
+
     function escapeHtml(str) { return str ? str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])) : ''; }
     function closeSidebar() { bootstrap.Offcanvas.getInstance(document.getElementById('sidebarMenu'))?.hide(); }
 
