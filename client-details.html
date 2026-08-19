@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>سنترال محمد الجنبيهي - ملف العميل</title>
+    <title>سنترال محمد الجنبيهي - ملف العميل والمديونيات</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -35,11 +34,8 @@
         }
     </script>
     
-    <!-- Google Fonts & Font Awesome -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    
-    <!-- QR Code Generator Lib -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
@@ -87,21 +83,21 @@
             <i class="fas fa-microchip text-indigo-400 animate-pulse"></i>
         </div>
     </div>
-    <p class="mt-3 text-xs font-semibold text-slate-300">جاري تحميل بيانات العميل...</p>
+    <p class="mt-3 text-xs font-semibold text-slate-300">جاري تحميل بيانات العميل وحساباته...</p>
 </div>
 
-<!-- Header & Navigation Bar -->
+<!-- Header -->
 <header class="sticky top-0 z-40 glass-card border-b border-white/10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <a href="clients.html" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center transition">
+            <a href="clients.html" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center transition" title="رجوع للعملاء">
                 <i class="fas fa-arrow-right"></i>
             </a>
             <div>
                 <h1 class="text-base sm:text-lg font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-300 bg-clip-text text-transparent">
-                    ملف وبيانات العميل
+                    ملف العميل وكشف الحساب
                 </h1>
-                <p class="text-[10px] text-slate-400">السجل الكامل للأجهزة والصيانات</p>
+                <p class="text-[10px] text-slate-400">بيانات الاتصال، الأجهزة، والمديونيات</p>
             </div>
         </div>
 
@@ -142,23 +138,40 @@
                         <span id="profPhone" class="font-semibold text-emerald-400" dir="ltr">-</span>
                         <span>•</span>
                         <span id="profDevicesCount" class="text-slate-300">0 أجهزة مسجلة</span>
-                        <span>•</span>
-                        <span id="profTotalSpent" class="text-indigo-300 font-bold">0 ج.م إجمالي الحساب</span>
                     </div>
                 </div>
             </div>
 
             <!-- Direct Contact Toolbar -->
             <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-0 border-white/10">
-                <a id="profCallBtn" href="#" class="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white text-xs font-bold transition flex items-center justify-center gap-2">
+                <a id="profCallBtn" href="#" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white text-xs font-bold transition flex items-center justify-center gap-2">
                     <i class="fas fa-phone"></i> اتصال
                 </a>
-                <button id="profWaBtn" class="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white text-xs font-bold transition flex items-center justify-center gap-2">
-                    <i class="fab fa-whatsapp text-sm"></i> واتساب
+                <button id="profDebtWaBtn" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white text-xs font-bold transition flex items-center justify-center gap-2 border border-rose-500/30 shadow-md">
+                    <i class="fab fa-whatsapp text-sm"></i> إرسال كشف الدين للعميل
                 </button>
-                <button id="profSmsBtn" class="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-sky-500/20 hover:bg-sky-500 text-sky-300 hover:text-white text-xs font-bold transition flex items-center justify-center gap-2">
+                <button id="profWaBtn" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white text-xs font-bold transition flex items-center justify-center gap-2">
+                    <i class="fab fa-whatsapp text-sm"></i> واتساب عام
+                </button>
+                <button id="profSmsBtn" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-sky-500/20 hover:bg-sky-500 text-sky-300 hover:text-white text-xs font-bold transition flex items-center justify-center gap-2">
                     <i class="fas fa-comment-dots"></i> SMS
                 </button>
+            </div>
+        </div>
+
+        <!-- Financial Statement Summary Grid (إجمالي الحساب / المدفوع / الباقي كدين) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-5 pt-4 border-t border-white/10 text-center">
+            <div class="bg-dark-bg/60 border border-white/5 p-3.5 rounded-2xl">
+                <span class="text-[11px] text-slate-400 block font-semibold">إجمالي تكلفة الصيانات</span>
+                <span class="text-xl font-black text-indigo-300 mt-1 block" id="profTotalCost">0 ج.م</span>
+            </div>
+            <div class="bg-dark-bg/60 border border-emerald-500/20 p-3.5 rounded-2xl">
+                <span class="text-[11px] text-emerald-400 block font-semibold">إجمالي المبالغ المدفوعة</span>
+                <span class="text-xl font-black text-emerald-400 mt-1 block" id="profTotalPaid">0 ج.م</span>
+            </div>
+            <div class="bg-dark-bg/60 border border-rose-500/30 p-3.5 rounded-2xl">
+                <span class="text-[11px] text-rose-400 block font-semibold">المتبقي (المديونية / الدين)</span>
+                <span class="text-xl font-black text-rose-400 mt-1 block" id="profTotalRemaining">0 ج.م</span>
             </div>
         </div>
     </div>
@@ -196,7 +209,9 @@
             <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">الملحقات:</span><span id="rcptAccessories"></span></div>
             <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">الاستلام:</span><span id="rcptReceiveDate"></span></div>
             <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">التسليم المتوقع:</span><span id="rcptDeliveryDate"></span></div>
-            <div class="flex justify-between pt-2 text-sm font-extrabold text-indigo-950"><span>التكلفة:</span><span id="rcptCost"></span></div>
+            <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">المدفوع:</span><span id="rcptPaid" class="font-bold text-emerald-600"></span></div>
+            <div class="flex justify-between pt-1.5 text-xs font-bold text-rose-600"><span>المتبقي (الدين):</span><span id="rcptRemaining"></span></div>
+            <div class="flex justify-between pt-1 text-sm font-extrabold text-indigo-950"><span>الإجمالي:</span><span id="rcptCost"></span></div>
         </div>
 
         <div class="flex flex-col items-center justify-center my-3">
@@ -217,6 +232,11 @@
 <script>
     const BASE_DB_URL = "https://repairshop-e2483-default-rtdb.firebaseio.com";
     let clientDevices = [];
+    let currentClientName = '';
+    let currentClientPhone = '';
+    let currentTotalCost = 0;
+    let currentTotalPaid = 0;
+    let currentTotalDebt = 0;
 
     document.addEventListener('DOMContentLoaded', fetchClientDetails);
 
@@ -228,18 +248,20 @@
             window.location.href = 'clients.html';
             return;
         }
+        currentClientName = clientName;
 
         showLoading(true);
         try {
-            const res = await fetch(`${BASE_DB_URL}/data/devices.json`);
+            const res = await fetch(`${BASE_DB_URL}/data.json`);
             showLoading(false);
             if (!res.ok) return;
             const data = await res.json();
             
-            clientDevices = Object.values(data || {}).filter(d => (d.name || '').trim() === clientName.trim());
+            const allDevices = (data && data.devices) ? Object.values(data.devices) : [];
+            clientDevices = allDevices.filter(d => (d.name || '').trim() === clientName.trim());
             
             if (clientDevices.length === 0) {
-                alert('لم يتم العثور على أجهزة لهذا العميل');
+                alert('لم يتم العثور على أجهزة مسجلة لهذا العميل');
                 window.location.href = 'clients.html';
                 return;
             }
@@ -253,19 +275,25 @@
     }
 
     function renderClientHeader(clientName) {
-        const first = clientDevices[0];
-        const phone = clientDevices.find(d => d.phone)?.phone || '';
-        const totalSpent = clientDevices.reduce((sum, d) => sum + (Number(d.cost) || 0), 0);
+        currentClientPhone = clientDevices.find(d => d.phone)?.phone || '';
+        
+        currentTotalCost = clientDevices.reduce((sum, d) => sum + (Number(d.cost) || 0), 0);
+        currentTotalPaid = clientDevices.reduce((sum, d) => sum + (Number(d.paid) || 0), 0);
+        currentTotalDebt = Math.max(0, currentTotalCost - currentTotalPaid);
 
         document.getElementById('profAvatar').innerText = clientName.charAt(0);
         document.getElementById('profName').innerText = clientName;
-        document.getElementById('profPhone').innerText = phone || 'بدون رقم مسجل';
+        document.getElementById('profPhone').innerText = currentClientPhone || 'بدون رقم مسجل';
         document.getElementById('profDevicesCount').innerText = `${clientDevices.length} أجهزة مسجلة`;
-        document.getElementById('profTotalSpent').innerText = `${totalSpent.toLocaleString('ar-EG')} ج.م إجمالي الحساب`;
+        
+        document.getElementById('profTotalCost').innerText = `${currentTotalCost.toLocaleString('ar-EG')} ج.م`;
+        document.getElementById('profTotalPaid').innerText = `${currentTotalPaid.toLocaleString('ar-EG')} ج.م`;
+        document.getElementById('profTotalRemaining').innerText = `${currentTotalDebt.toLocaleString('ar-EG')} ج.م`;
 
-        document.getElementById('profCallBtn').href = phone ? `tel:${phone}` : '#';
-        document.getElementById('profWaBtn').onclick = () => phone ? window.open(`https://wa.me/20${phone.startsWith('0')?phone.substring(1):phone}`) : alert('لا يوجد رقم هاتف');
-        document.getElementById('profSmsBtn').onclick = () => phone ? window.location.href = `sms:${phone}` : alert('لا يوجد رقم هاتف');
+        document.getElementById('profCallBtn').href = currentClientPhone ? `tel:${currentClientPhone}` : '#';
+        document.getElementById('profWaBtn').onclick = () => sendGeneralWA();
+        document.getElementById('profDebtWaBtn').onclick = () => sendDebtStatementWA();
+        document.getElementById('profSmsBtn').onclick = () => currentClientPhone ? window.location.href = `sms:${currentClientPhone}` : alert('لا يوجد رقم هاتف');
     }
 
     function renderClientDevices() {
@@ -274,6 +302,10 @@
 
         // Sort newest devices on top
         clientDevices.reverse().forEach(d => {
+            const cost = Number(d.cost) || 0;
+            const paid = Number(d.paid) || 0;
+            const remaining = Math.max(0, cost - paid);
+
             cont.innerHTML += `
                 <div class="glass-card rounded-2xl p-4 flex flex-col justify-between glass-card-hover space-y-3">
                     <div>
@@ -303,14 +335,17 @@
                         ${d.notes ? `<div class="text-[11px] text-amber-300 bg-amber-500/10 p-2 rounded-xl mt-2"><i class="far fa-note-sticky ml-1"></i>${escapeHtml(d.notes)}</div>` : ''}
                     </div>
 
-                    <div class="flex items-center justify-between border-t border-white/10 pt-3">
-                        <span class="text-xs font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-lg">
-                            ${d.cost ? `${Number(d.cost).toLocaleString('ar-EG')} ج.م` : '0 ج.م'}
-                        </span>
-                        
-                        <div class="flex items-center gap-1">
-                            <button onclick="sendWA('${d.id}')" title="واتساب" class="w-7 h-7 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white flex items-center justify-center text-xs transition"><i class="fab fa-whatsapp"></i></button>
-                            <button onclick="sendSMS('${d.id}')" title="SMS" class="w-7 h-7 rounded-lg bg-sky-500/20 hover:bg-sky-500 text-sky-300 hover:text-white flex items-center justify-center text-xs transition"><i class="fas fa-comment-dots"></i></button>
+                    <div class="border-t border-white/10 pt-3 space-y-2">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-bold text-white">التكلفة: ${cost} ج.م</span>
+                            <span class="text-cyan-400 font-semibold">المدفوع: ${paid} ج.م</span>
+                            <span class="${remaining > 0 ? 'text-rose-400 font-black' : 'text-emerald-400 font-semibold'}">
+                                ${remaining > 0 ? `باقي: ${remaining} ج.م` : 'خالص'}
+                            </span>
+                        </div>
+
+                        <div class="flex items-center justify-end gap-1 pt-1">
+                            <button onclick="sendDeviceWA('${d.id}')" title="واتساب الجهاز" class="w-7 h-7 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white flex items-center justify-center text-xs transition"><i class="fab fa-whatsapp"></i></button>
                             <button onclick="openReceipt('${d.id}')" title="إيصال" class="w-7 h-7 rounded-lg bg-indigo-500/20 hover:bg-indigo-500 text-indigo-300 hover:text-white flex items-center justify-center text-xs transition"><i class="fas fa-qrcode"></i></button>
                         </div>
                     </div>
@@ -318,9 +353,72 @@
         });
     }
 
+    // Send Debt Statement via WhatsApp
+    function sendDebtStatementWA() {
+        if (!currentClientPhone) return alert("لا يوجد رقم هاتف مسجل لهذا العميل");
+
+        let msg = `*الأستاذ / ${currentClientName}* 🌸\n\n`;
+        msg += `📋 *كشف الحساب والمديونية طرف مركز سنترال محمد الجنبيهي:*\n\n`;
+        msg += `📱 *عدد الأجهزة المسجلة:* ${clientDevices.length} أجهزة\n`;
+        msg += `💰 *إجمالي تكلفة الصيانات:* *${currentTotalCost} ج.م*\n`;
+        msg += `💵 *إجمالي المبالغ المدفوعة:* *${currentTotalPaid} ج.م*\n`;
+        
+        if (currentTotalDebt > 0) {
+            msg += `🔴 *المتبقي المستحق (المديونية):* *${currentTotalDebt} ج.م*\n\n`;
+            msg += `نرجو من سيادتكم التكرم بسداد المبلغ المتبقي عند استلام الأجهزة أو في أقرب وقت.\n`;
+        } else {
+            msg += `🟢 *حالة الحساب:* تم سداد كامل الحساب بنجاح، لا توجد مديونيات متبقية.\n\n`;
+        }
+
+        msg += `\n✨ *مع تحيات مركز سنترال محمد الجنبيهي للصيانة، نسعد دائماً بخدمتكم وتلبية طلباتكم بأفضل جودة!* 💐`;
+
+        const p = currentClientPhone.startsWith('0') ? currentClientPhone.substring(1) : currentClientPhone;
+        window.open(`https://wa.me/20${p}?text=${encodeURIComponent(msg)}`);
+    }
+
+    function sendGeneralWA() {
+        if (!currentClientPhone) return alert("لا يوجد رقم هاتف مسجل");
+        const msg = `*الأستاذ / ${currentClientName}* 🌸\n\nأهلاً بك، نتواصل معك من مركز سنترال محمد الجنبيهي للصيانة بخصوص متابعة أجهزتك لدينا.\n\n✨ *نسعد دائماً بخدمتكم وتلبية طلباتكم بأفضل جودة!* 💐`;
+        const p = currentClientPhone.startsWith('0') ? currentClientPhone.substring(1) : currentClientPhone;
+        window.open(`https://wa.me/20${p}?text=${encodeURIComponent(msg)}`);
+    }
+
+    function sendDeviceWA(id) {
+        const d = clientDevices.find(dev => dev.id === id);
+        if (!d || !d.phone) return alert("لا يوجد رقم هاتف مسجل");
+
+        const name = d.name || 'عميلنا العزيز';
+        const st = d.status || 'غير محدد';
+        const cost = d.cost ? `${d.cost} ج.م` : 'لم تحدد بعد';
+        const paid = Number(d.paid) || 0;
+        const remaining = Math.max(0, (Number(d.cost) || 0) - paid);
+        const rd = d.receiveDate || 'غير محدد';
+        const dd = d.deliveryDate || 'غير محدد';
+        const f = d.fault || 'غير محدد';
+        const acc = d.accessories || 'لا يوجد';
+
+        let msg = `*الأستاذ / ${name}* 🌸\n\n`;
+        msg += `📍 *حالة الجهاز:* ${st}\n`;
+        msg += `💰 *التكلفة:* *${cost}*\n`;
+        if (paid > 0) msg += `💵 *المدفوع:* ${paid} ج.م\n`;
+        if (remaining > 0) msg += `⚠️ *المتبقي كدين:* *${remaining} ج.م*\n`;
+        msg += `📥 *تاريخ الاستلام:* ${rd}\n`;
+        msg += `📤 *تاريخ التسليم المتوقع:* ${dd}\n`;
+        msg += `🔧 *العطل:* ${f}\n`;
+        msg += `🔌 *ملحقات الجهاز:* ${acc}\n\n`;
+        msg += `✨ *مع تحيات مركز سنترال محمد الجنبيهي للصيانة، نسعد دائماً بخدمتكم وتلبية طلباتكم بأفضل جودة!* 💐`;
+
+        const p = d.phone.startsWith('0') ? d.phone.substring(1) : d.phone;
+        window.open(`https://wa.me/20${p}?text=${encodeURIComponent(msg)}`);
+    }
+
     function openReceipt(id) {
         const d = clientDevices.find(dev => dev.id === id);
         if (!d) return;
+
+        const cost = Number(d.cost) || 0;
+        const paid = Number(d.paid) || 0;
+        const rem = Math.max(0, cost - paid);
 
         document.getElementById('rcptName').innerText = d.name || '-';
         document.getElementById('rcptPhone').innerText = d.phone || '-';
@@ -330,64 +428,18 @@
         document.getElementById('rcptAccessories').innerText = d.accessories || 'بدون';
         document.getElementById('rcptReceiveDate').innerText = d.receiveDate || '-';
         document.getElementById('rcptDeliveryDate').innerText = d.deliveryDate || '-';
-        document.getElementById('rcptCost').innerText = d.cost ? `${d.cost} ج.م` : 'غير محدد';
+        document.getElementById('rcptCost').innerText = `${cost} ج.م`;
+        document.getElementById('rcptPaid').innerText = `${paid} ج.م`;
+        document.getElementById('rcptRemaining').innerText = rem > 0 ? `${rem} ج.م` : 'خالص';
 
         const qb = document.getElementById('qrcodeBox');
         qb.innerHTML = '';
         new QRCode(qb, {
-            text: `سنترال محمد الجنبيهي\nالعميل: ${d.name}\nالجهاز: ${d.type}\nالسيريال: ${d.imei || 'لا يوجد'}\nالعطل: ${d.fault}\nالتكلفة: ${d.cost || 0} ج.م`,
+            text: `سنترال محمد الجنبيهي\nالعميل: ${d.name}\nالجهاز: ${d.type}\nالسيريال: ${d.imei || 'لا يوجد'}\nالعطل: ${d.fault}\nالتكلفة: ${cost} ج.م\nالمدفوع: ${paid} ج.م\nالمتبقي: ${rem} ج.م`,
             width: 100, height: 100, colorDark: "#0f172a", colorLight: "#ffffff"
         });
 
         openModal('receiptModal');
-    }
-
-    function buildMsg(d, isWA = true) {
-        const name = d.name || 'عميلنا العزيز';
-        const st = d.status || 'غير محدد';
-        const cost = d.cost ? `${d.cost} ج.م` : 'لم تحدد بعد';
-        const rd = d.receiveDate || 'غير محدد';
-        const dd = d.deliveryDate || 'غير محدد';
-        const f = d.fault || 'غير محدد';
-        const acc = d.accessories || 'لا يوجد';
-
-        if (isWA) {
-            let msg = `*الأستاذ / ${name}* 🌸\n\n`;
-            msg += `📍 *حالة الجهاز:* ${st}\n`;
-            msg += `💰 *التكلفة:* *${cost}*\n`;
-            msg += `📥 *تاريخ الاستلام:* ${rd}\n`;
-            msg += `📤 *تاريخ التسليم المتوقع:* ${dd}\n`;
-            msg += `🔧 *العطل:* ${f}\n`;
-            msg += `🔌 *ملحقات الجهاز:* ${acc}\n\n`;
-            msg += `✨ *مع تحيات مركز سنترال محمد الجنبيهي للصيانة، نسعد دائماً بخدمتكم وتلبية طلباتكم بأفضل جودة!* 💐`;
-            return msg;
-        } else {
-            let msg = `الأستاذ/ ${name}\n`;
-            msg += `حالة الجهاز: ${st}\n`;
-            msg += `التكلفة: ${cost}\n`;
-            msg += `تاريخ الاستلام: ${rd}\n`;
-            msg += `تاريخ التسليم: ${dd}\n`;
-            msg += `العطل: ${f}\n`;
-            msg += `الملحقات: ${acc}\n`;
-            msg += `مع تحيات مركز سنترال محمد الجنبيهي للصيانة`;
-            return msg;
-        }
-    }
-
-    function sendWA(id) {
-        const d = clientDevices.find(dev => dev.id === id);
-        if (!d || !d.phone) return alert("لا يوجد رقم هاتف مسجل");
-        const msg = buildMsg(d, true);
-        const p = d.phone.startsWith('0') ? d.phone.substring(1) : d.phone;
-        window.open(`https://wa.me/20${p}?text=${encodeURIComponent(msg)}`);
-    }
-
-    function sendSMS(id) {
-        const d = clientDevices.find(dev => dev.id === id);
-        if (!d || !d.phone) return alert("لا يوجد رقم هاتف مسجل");
-        const msg = buildMsg(d, false);
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        window.location.href = `sms:${d.phone}${isIOS ? '&' : '?'}body=${encodeURIComponent(msg)}`;
     }
 
     function openModal(id) { document.getElementById(id).classList.remove('hidden'); }

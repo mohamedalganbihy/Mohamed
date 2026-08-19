@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>سنترال محمد الجنبيهي - جدول وإدارة الأجهزة</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -35,11 +34,8 @@
         }
     </script>
     
-    <!-- Google Fonts & Font Awesome -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    
-    <!-- QR Code Generator Lib -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
@@ -90,7 +86,7 @@
     <p class="mt-3 text-xs font-semibold text-slate-300">جاري المعالجة...</p>
 </div>
 
-<!-- Header & Navigation Bar -->
+<!-- Header -->
 <header class="sticky top-0 z-40 glass-card border-b border-white/10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -105,7 +101,7 @@
             </div>
         </div>
 
-        <!-- Desktop Navigation Tabs -->
+        <!-- Desktop Tabs -->
         <nav class="hidden md:flex items-center gap-2 p-1 rounded-2xl bg-dark-surface/90 border border-white/5 text-xs font-bold">
             <a href="index.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
                 <i class="fas fa-chart-pie"></i> الرئيسية
@@ -124,7 +120,6 @@
             </a>
         </nav>
 
-        <!-- Add Button -->
         <div class="flex items-center gap-2">
             <button onclick="openModal('addModal')" class="bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-indigo-600/30 transition flex items-center gap-1.5">
                 <i class="fas fa-plus"></i>
@@ -137,7 +132,7 @@
 <!-- MAIN CONTENT -->
 <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 flex-1 w-full space-y-4">
 
-    <!-- Search & Filter Controls -->
+    <!-- Search Controls -->
     <div class="glass-card p-3.5 rounded-2xl flex flex-col md:flex-row items-center gap-3">
         <div class="relative w-full flex-1">
             <i class="fas fa-search absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
@@ -194,7 +189,7 @@
     </a>
 </nav>
 
-<!-- MODAL: ADD DEVICE (Integrated with Inventory & Shortages & Serial) -->
+<!-- MODAL: ADD DEVICE (Includes Cost & Paid / Debt) -->
 <div id="addModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
     <div class="glass-card bg-dark-card border border-white/10 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl max-h-[92vh] flex flex-col">
         <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between flex-shrink-0">
@@ -244,14 +239,18 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- Financials: Total Cost & Paid Amount -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-emerald-950/20 border border-emerald-500/20 p-3 rounded-xl">
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1">الملحقات</label>
-                    <input type="text" id="addAccessories" placeholder="جراب، شاحن، بدون..." class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                    <label class="block font-bold text-emerald-400 mb-1">التكلفة الإجمالية (ج.م) *</label>
+                    <input type="number" id="addCost" required placeholder="0" oninput="calcAddRemaining()" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
                 </div>
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1">التكلفة التقديرية (ج.م)</label>
-                    <input type="number" id="addCost" placeholder="0" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                    <label class="block font-bold text-cyan-400 mb-1">المبلغ المدفوع مقدماً (ج.م)</label>
+                    <input type="number" id="addPaid" placeholder="0" oninput="calcAddRemaining()" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500">
+                </div>
+                <div class="col-span-2 text-right pt-1 text-slate-300">
+                    <span>المتبقي كدين على العميل: <b id="addRemainingText" class="text-rose-400">0 ج.م</b></span>
                 </div>
             </div>
 
@@ -267,8 +266,13 @@
             </div>
 
             <div>
+                <label class="block font-semibold text-slate-300 mb-1">الملحقات</label>
+                <input type="text" id="addAccessories" placeholder="جراب، شاحن، بدون..." class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+            </div>
+
+            <div>
                 <label class="block font-semibold text-slate-300 mb-1">ملاحظات فنية / رمز القفل</label>
-                <textarea id="addNotes" rows="2" placeholder="الرمز: 1234، ملحوظة فنية..." class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500"></textarea>
+                <textarea id="addNotes" rows="2" placeholder="الرمز: 1234، ملحوظة..." class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500"></textarea>
             </div>
 
             <div class="pt-2">
@@ -280,12 +284,12 @@
     </div>
 </div>
 
-<!-- MODAL: EDIT DEVICE (Fixed & With Serial) -->
+<!-- MODAL: EDIT DEVICE (With Payments and Debt) -->
 <div id="editModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
     <div class="glass-card bg-dark-card border border-white/10 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl max-h-[92vh] flex flex-col">
         <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between flex-shrink-0">
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                <i class="fas fa-pen-to-square text-cyan-400"></i> تعديل بيانات جهاز الصيانة
+                <i class="fas fa-pen-to-square text-cyan-400"></i> تعديل بيانات جهاز الصيانة والمدفوعات
             </h3>
             <button onclick="closeModal('editModal')" class="text-slate-400 hover:text-white"><i class="fas fa-xmark text-lg"></i></button>
         </div>
@@ -320,6 +324,23 @@
                 <input type="text" id="editFault" required class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
             </div>
 
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 bg-emerald-950/20 border border-emerald-500/20 p-3 rounded-xl">
+                <div>
+                    <label class="block font-bold text-emerald-400 mb-1">التكلفة (ج.م)</label>
+                    <input type="number" id="editCost" oninput="calcEditRemaining()" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block font-bold text-cyan-400 mb-1">المدفوع (ج.م)</label>
+                    <input type="number" id="editPaid" oninput="calcEditRemaining()" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500">
+                </div>
+                <div>
+                    <label class="block font-bold text-rose-400 mb-1">المتبقي (الدين)</label>
+                    <div id="editRemainingText" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-rose-400 font-bold flex items-center">
+                        0 ج.م
+                    </div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <label class="block font-semibold text-slate-300 mb-1">حالة الجهاز</label>
@@ -333,8 +354,8 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1">التكلفة (ج.م)</label>
-                    <input type="number" id="editCost" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                    <label class="block font-semibold text-slate-300 mb-1">تاريخ الاستلام</label>
+                    <input type="date" id="editReceiveDate" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
                 </div>
             </div>
 
@@ -348,18 +369,13 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1">تاريخ الاستلام</label>
-                    <input type="date" id="editReceiveDate" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
-                </div>
-                <div>
                     <label class="block font-semibold text-slate-300 mb-1">تاريخ التسليم المتوقع</label>
                     <input type="date" id="editDeliveryDate" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
                 </div>
-            </div>
-
-            <div>
-                <label class="block font-semibold text-slate-300 mb-1">الملحقات المستلمة</label>
-                <input type="text" id="editAccessories" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">الملحقات المستلمة</label>
+                    <input type="text" id="editAccessories" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                </div>
             </div>
 
             <div>
@@ -397,7 +413,9 @@
             <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">الملحقات:</span><span id="rcptAccessories"></span></div>
             <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">الاستلام:</span><span id="rcptReceiveDate"></span></div>
             <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">التسليم المتوقع:</span><span id="rcptDeliveryDate"></span></div>
-            <div class="flex justify-between pt-2 text-sm font-extrabold text-indigo-950"><span>التكلفة:</span><span id="rcptCost"></span></div>
+            <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">المدفوع:</span><span id="rcptPaid" class="font-bold text-emerald-600"></span></div>
+            <div class="flex justify-between pt-1.5 text-xs font-bold text-rose-600"><span>المتبقي (الدين):</span><span id="rcptRemaining"></span></div>
+            <div class="flex justify-between pt-1 text-sm font-extrabold text-indigo-950"><span>الإجمالي:</span><span id="rcptCost"></span></div>
         </div>
 
         <div class="flex flex-col items-center justify-center my-3">
@@ -464,6 +482,20 @@
         renderDevices(filterToday);
     }
 
+    function calcAddRemaining() {
+        const cost = Number(document.getElementById('addCost').value) || 0;
+        const paid = Number(document.getElementById('addPaid').value) || 0;
+        const remaining = Math.max(0, cost - paid);
+        document.getElementById('addRemainingText').innerText = `${remaining} ج.م`;
+    }
+
+    function calcEditRemaining() {
+        const cost = Number(document.getElementById('editCost').value) || 0;
+        const paid = Number(document.getElementById('editPaid').value) || 0;
+        const remaining = Math.max(0, cost - paid);
+        document.getElementById('editRemainingText').innerText = `${remaining} ج.م`;
+    }
+
     function populateInventorySelectors() {
         const addSel = document.getElementById('addPartSelect');
         const editSel = document.getElementById('editPartSelect');
@@ -499,6 +531,7 @@
                     const price = inventoryState[val].sellingPrice || 0;
                     if (price > 0 && !document.getElementById('addCost').value) {
                         document.getElementById('addCost').value = price;
+                        calcAddRemaining();
                     }
                 }
             }
@@ -508,11 +541,14 @@
     function renderDevices(filterToday = false) {
         const cont = document.getElementById('devicesContainer');
         cont.innerHTML = '';
-        // Sort newest devices on top
         const devs = Object.values(devicesState).reverse();
         const todayStr = new Date().toISOString().split('T')[0];
 
         devs.forEach(d => {
+            const cost = Number(d.cost) || 0;
+            const paid = Number(d.paid) || 0;
+            const remaining = Math.max(0, cost - paid);
+
             cont.innerHTML += `
                 <div class="glass-card rounded-2xl p-4 flex flex-col justify-between glass-card-hover device-card-item" data-status="${d.status}" data-search="${(d.name + ' ' + d.phone + ' ' + (d.imei || '') + ' ' + d.type + ' ' + d.fault).toLowerCase()}">
                     <div>
@@ -547,12 +583,16 @@
                         ${d.notes ? `<div class="text-[11px] text-amber-300 bg-amber-500/10 p-2 rounded-xl mt-2"><i class="far fa-note-sticky ml-1"></i>${escapeHtml(d.notes)}</div>` : ''}
                     </div>
 
-                    <div class="flex items-center justify-between border-t border-white/10 pt-3 mt-3">
-                        <span class="text-xs font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-lg">
-                            ${d.cost ? `${Number(d.cost).toLocaleString('ar-EG')} ج.م` : '0 ج.م'}
-                        </span>
-                        
-                        <div class="flex items-center gap-1">
+                    <div class="border-t border-white/10 pt-3 mt-3 space-y-2">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-bold text-white">الإجمالي: ${cost} ج.م</span>
+                            <span class="text-cyan-400 font-semibold">المدفوع: ${paid} ج.م</span>
+                            <span class="${remaining > 0 ? 'text-rose-400 font-black' : 'text-emerald-400 font-semibold'}">
+                                ${remaining > 0 ? `باقي: ${remaining} ج.م` : 'خالص'}
+                            </span>
+                        </div>
+
+                        <div class="flex items-center justify-end gap-1 pt-1">
                             ${d.phone ? `<a href="tel:${d.phone}" title="اتصال" class="w-7 h-7 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white flex items-center justify-center text-xs transition"><i class="fas fa-phone"></i></a>` : ''}
                             <button onclick="sendWA('${d.id}')" title="واتساب" class="w-7 h-7 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white flex items-center justify-center text-xs transition"><i class="fab fa-whatsapp"></i></button>
                             <button onclick="sendSMS('${d.id}')" title="SMS" class="w-7 h-7 rounded-lg bg-sky-500/20 hover:bg-sky-500 text-sky-300 hover:text-white flex items-center justify-center text-xs transition"><i class="fas fa-comment-dots"></i></button>
@@ -643,6 +683,9 @@
             await api(`data/inventory/${partChoice}`, "PATCH", { qty: newQty });
         }
 
+        const costVal = Number(document.getElementById('addCost').value) || 0;
+        const paidVal = Number(document.getElementById('addPaid').value) || 0;
+
         const payload = {
             id,
             name: document.getElementById('addName').value.trim(),
@@ -651,7 +694,9 @@
             imei: document.getElementById('addImei').value.trim(),
             fault: document.getElementById('addFault').value.trim(),
             accessories: document.getElementById('addAccessories').value.trim(),
-            cost: document.getElementById('addCost').value,
+            cost: costVal,
+            paid: paidVal,
+            remaining: Math.max(0, costVal - paidVal),
             receiveDate: document.getElementById('addReceiveDate').value,
             deliveryDate: document.getElementById('addDeliveryDate').value,
             notes: document.getElementById('addNotes').value.trim(),
@@ -663,6 +708,7 @@
         closeModal('addModal');
         document.getElementById('addDeviceForm').reset();
         document.getElementById('addCustomPartBox').classList.add('hidden');
+        document.getElementById('addRemainingText').innerText = '0 ج.م';
         fetchInitialData();
     }
 
@@ -678,6 +724,9 @@
         document.getElementById('editFault').value = d.fault || '';
         document.getElementById('editStatus').value = d.status || 'جاهز للصيانة';
         document.getElementById('editCost').value = d.cost || 0;
+        document.getElementById('editPaid').value = d.paid || 0;
+        calcEditRemaining();
+
         document.getElementById('editReceiveDate').value = d.receiveDate || '';
         document.getElementById('editDeliveryDate').value = d.deliveryDate || '';
         document.getElementById('editAccessories').value = d.accessories || '';
@@ -710,6 +759,9 @@
             }
         }
 
+        const costVal = Number(document.getElementById('editCost').value) || 0;
+        const paidVal = Number(document.getElementById('editPaid').value) || 0;
+
         const payload = {
             name: document.getElementById('editName').value.trim(),
             phone: document.getElementById('editPhone').value.trim(),
@@ -717,7 +769,9 @@
             imei: document.getElementById('editImei').value.trim(),
             fault: document.getElementById('editFault').value.trim(),
             status,
-            cost: document.getElementById('editCost').value,
+            cost: costVal,
+            paid: paidVal,
+            remaining: Math.max(0, costVal - paidVal),
             receiveDate: document.getElementById('editReceiveDate').value,
             deliveryDate: document.getElementById('editDeliveryDate').value,
             accessories: document.getElementById('editAccessories').value.trim(),
@@ -744,6 +798,10 @@
         const d = devicesState[id];
         if (!d) return;
 
+        const cost = Number(d.cost) || 0;
+        const paid = Number(d.paid) || 0;
+        const rem = Math.max(0, cost - paid);
+
         document.getElementById('rcptName').innerText = d.name || '-';
         document.getElementById('rcptPhone').innerText = d.phone || '-';
         document.getElementById('rcptType').innerText = d.type || '-';
@@ -752,23 +810,26 @@
         document.getElementById('rcptAccessories').innerText = d.accessories || 'بدون';
         document.getElementById('rcptReceiveDate').innerText = d.receiveDate || '-';
         document.getElementById('rcptDeliveryDate').innerText = d.deliveryDate || '-';
-        document.getElementById('rcptCost').innerText = d.cost ? `${d.cost} ج.م` : 'غير محدد';
+        document.getElementById('rcptCost').innerText = `${cost} ج.م`;
+        document.getElementById('rcptPaid').innerText = `${paid} ج.م`;
+        document.getElementById('rcptRemaining').innerText = rem > 0 ? `${rem} ج.م` : 'خالص';
 
         const qb = document.getElementById('qrcodeBox');
         qb.innerHTML = '';
         new QRCode(qb, {
-            text: `سنترال محمد الجنبيهي\nالعميل: ${d.name}\nالجهاز: ${d.type}\nالسيريال: ${d.imei || 'لا يوجد'}\nالعطل: ${d.fault}\nالتكلفة: ${d.cost || 0} ج.م`,
+            text: `سنترال محمد الجنبيهي\nالعميل: ${d.name}\nالجهاز: ${d.type}\nالسيريال: ${d.imei || 'لا يوجد'}\nالعطل: ${d.fault}\nالتكلفة: ${cost} ج.م\nالمدفوع: ${paid} ج.م\nالمتبقي: ${rem} ج.م`,
             width: 100, height: 100, colorDark: "#0f172a", colorLight: "#ffffff"
         });
 
         openModal('receiptModal');
     }
 
-    // Precise WhatsApp & SMS Formatter according to user exact requirements
     function buildMsg(d, isWA = true) {
         const name = d.name || 'عميلنا العزيز';
         const st = d.status || 'غير محدد';
         const cost = d.cost ? `${d.cost} ج.م` : 'لم تحدد بعد';
+        const paid = Number(d.paid) || 0;
+        const remaining = Math.max(0, (Number(d.cost) || 0) - paid);
         const rd = d.receiveDate || 'غير محدد';
         const dd = d.deliveryDate || 'غير محدد';
         const f = d.fault || 'غير محدد';
@@ -777,7 +838,9 @@
         if (isWA) {
             let msg = `*الأستاذ / ${name}* 🌸\n\n`;
             msg += `📍 *حالة الجهاز:* ${st}\n`;
-            msg += `💰 *التكلفة:* *${cost}*\n`;
+            msg += `💰 *التكلفة الإجمالية:* *${cost}*\n`;
+            if (paid > 0) msg += `💵 *المدفوع:* ${paid} ج.م\n`;
+            if (remaining > 0) msg += `⚠️ *المتبقي كدين:* *${remaining} ج.م*\n`;
             msg += `📥 *تاريخ الاستلام:* ${rd}\n`;
             msg += `📤 *تاريخ التسليم المتوقع:* ${dd}\n`;
             msg += `🔧 *العطل:* ${f}\n`;
@@ -788,6 +851,7 @@
             let msg = `الأستاذ/ ${name}\n`;
             msg += `حالة الجهاز: ${st}\n`;
             msg += `التكلفة: ${cost}\n`;
+            if (remaining > 0) msg += `المتبقي: ${remaining} ج.م\n`;
             msg += `تاريخ الاستلام: ${rd}\n`;
             msg += `تاريخ التسليم: ${dd}\n`;
             msg += `العطل: ${f}\n`;
