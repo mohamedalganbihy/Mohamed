@@ -1,430 +1,329 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>سنترال محمد الجنبيهي - الإدارة الذكية</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root { --primary-color: #0d6efd; --bg-body: #0a0e17; --customer-color: #ff9999; --card-bg: #1a1d24; --border-color: #2a2e38; --text-light: #eef2ff; }
-        body { background-color: var(--bg-body); font-family: 'Segoe UI', system-ui; padding-bottom: 50px; color: var(--text-light); }
-        .brand-header { background: linear-gradient(135deg, #0d6efd 0%, #00cec9 100%); color: white; padding: 15px; border-radius: 0 0 20px 20px; display: flex; align-items: center; gap: 15px; }
-        .brand-header h1 { font-size: 1.2rem; font-weight: 900; margin: 0; flex-grow: 1; text-align: center; }
-        
-        .stats-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 10px; }
-        .stat-card { background: var(--card-bg); padding: 10px 5px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color); }
-        .stat-card .val { font-weight: bold; font-size: 1.1rem; display: block; }
-        .stat-card .lbl { font-size: 0.6rem; color: #aaa; }
-
-        .filter-section { background: var(--card-bg); padding: 12px; margin: 0 10px 15px; border-radius: 12px; border: 1px solid var(--border-color); }
-
-        #devContainer { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 0 10px; }
-        @media (min-width: 1024px) { #devContainer { grid-template-columns: 1fr 1fr 1fr; } }
-
-        .device-card { background: var(--card-bg); border-radius: 15px; padding: 15px; border-right: 5px solid var(--primary-color); position: relative; }
-        .notes-area { background: #00000040; padding: 5px; border-radius: 5px; font-size: 0.75rem; color: #ffeb3b; margin-top: 5px; border: 1px solid #444; }
-        .extra-info { font-size: 0.75rem; color: #a29bfe; margin-top: 3px; display: flex; flex-wrap: wrap; gap: 10px; }
-        
-        .form-control, .form-select { background-color: #2a2e38 !important; border-color: #444 !important; color: #ffffff !important; }
-        .form-control::placeholder { color: #888 !important; }
-        
-        .wa-icon { color: #25d366; font-size: 1.25rem; cursor: pointer; transition: transform 0.2s; }
-        .sms-icon { color: #38bdf8; font-size: 1.25rem; cursor: pointer; transition: transform 0.2s; }
-        .del-icon { color: #ff5252; font-size: 1.1rem; cursor: pointer; transition: transform 0.2s; }
-        .wa-icon:hover, .sms-icon:hover, .del-icon:hover { transform: scale(1.15); }
-        .list-item { background: var(--card-bg); padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-right: 4px solid #17a2b8; }
-        #loading-overlay { position: fixed; inset: 0; background: #0a0e17; display: none; justify-content: center; align-items: center; z-index: 9999; }
-        
-        .status-unrepairable { background-color: #721c24 !important; color: #f8d7da !important; }
-    </style>
-</head>
-<body>
-
-<div id="loading-overlay"><div class="spinner-border text-primary"></div></div>
-
-<div class="brand-header">
-    <button class="btn text-white" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu"><i class="fas fa-bars"></i></button>
-    <h1>سنترال محمد الجنبيهي</h1>
-</div>
-
-<div class="stats-container">
-    <div class="stat-card"><span class="val text-info" id="stat-receive">0</span><span class="lbl">استلام</span></div>
-    <div class="stat-card"><span class="val text-warning" id="stat-active">0</span><span class="lbl">قيد العمل</span></div>
-    <div class="stat-card"><span class="val text-success" id="stat-ready">0</span><span class="lbl">جاهز</span></div>
-    <div class="stat-card"><span class="val text-secondary" id="stat-delivered">0</span><span class="lbl">تم التسليم</span></div>
-</div>
-
-<div class="filter-section">
-    <div class="row g-2">
-        <div class="col-6">
-            <input type="text" id="search" class="form-control form-control-sm" placeholder="بحث بالاسم أو الجهاز..." onkeyup="runFilter()">
-        </div>
-        <div class="col-4">
-            <select id="statusFilter" class="form-select form-select-sm" onchange="runFilter()">
-                <option value="الكل">كل الحالات</option>
-                <option value="جاهز للصيانة">استلام</option>
-                <option value="قيد الصيانة">قيد الصيانة</option>
-                <option value="انتهى (جاهز)">جاهز للتسليم</option>
-                <option value="تم التسليم">تم التسليم</option>
-                <option value="قطع غير متوفرة">نواقص</option>
-                <option value="غير قابل للصيانة">غير قابل للإصلاح</option>
-            </select>
-        </div>
-        <div class="col-2">
-            <button class="btn btn-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#addDevModal"><i class="fas fa-plus"></i></button>
-        </div>
-    </div>
-</div>
-
-<div class="offcanvas offcanvas-start bg-dark text-white" id="sidebarMenu">
-    <div class="offcanvas-header border-bottom border-secondary"><h5>القائمة</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div>
-    <div class="offcanvas-body">
-        <div class="nav flex-column nav-pills">
-            <button class="nav-link active mb-2 text-end" data-bs-toggle="pill" data-bs-target="#tab-1" onclick="closeSidebar()"><i class="fas fa-mobile-alt ms-2"></i> الأجهزة</button>
-            <button class="nav-link mb-2 text-end text-white" data-bs-toggle="pill" data-bs-target="#tab-3" onclick="closeSidebar()"><i class="fas fa-shopping-cart ms-2"></i> النواقص</button>
-        </div>
-    </div>
-</div>
-
-<div class="tab-content">
-    <div class="tab-pane fade show active" id="tab-1">
-        <div id="devContainer"></div>
-    </div>
-    <div class="tab-pane fade px-2" id="tab-3">
-        <h6 class="text-danger mt-2"><i class="fas fa-exclamation-circle"></i> قائمة النواقص</h6>
-        <div id="partsContainer"></div>
-    </div>
-</div>
-
-<div class="modal fade" id="addDevModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered px-3">
-        <form class="modal-content" id="devForm">
-            <div class="modal-header"><b>تسجيل جهاز</b></div>
-            <div class="modal-body">
-                <input type="text" id="cName" class="form-control mb-2" placeholder="اسم العميل" required>
-                <input type="text" id="dType" class="form-control mb-2" placeholder="نوع الجهاز" required>
-                <input type="text" id="dFault" class="form-control mb-2" placeholder="العطل" required>
-                <input type="text" id="dImei" class="form-control mb-2" placeholder="رقم الإيمي (IMEI)">
-                <input type="text" id="dAccessories" class="form-control mb-2" placeholder="الملحقات المستلمة (مثال: ريموت، شاحن، بدون)">
-                <div class="row g-2 mb-2">
-                    <div class="col-6">
-                        <label class="small text-muted">تاريخ الاستلام:</label>
-                        <input type="date" id="dReceiveDate" class="form-control" required>
-                    </div>
-                    <div class="col-6">
-                        <label class="small text-muted">تاريخ التسليم المتوقع:</label>
-                        <input type="date" id="dDeliveryDate" class="form-control">
-                    </div>
-                </div>
-                <textarea id="dNotes" class="form-control mb-2" placeholder="ملاحظات فنية..."></textarea>
-                <div class="row g-2">
-                    <div class="col-6"><input type="tel" id="cPhone" class="form-control" placeholder="رقم الموبايل"></div>
-                    <div class="col-6"><input type="number" id="dCost" class="form-control" placeholder="التكلفة"></div>
-                </div>
-            </div>
-            <div class="modal-footer p-1"><button type="submit" class="btn btn-primary w-100">حفظ</button></div>
-        </form>
-    </div>
-</div>
-
-<div class="modal fade" id="editModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered px-3">
-        <form class="modal-content" id="editForm">
-            <div class="modal-header"><b>تعديل بيانات الجهاز</b></div>
-            <div class="modal-body">
-                <input type="hidden" id="editId">
-                <label class="small text-info">اسم العميل:</label>
-                <input type="text" id="editCName" class="form-control mb-2">
-                <label class="small text-info">رقم الموبايل:</label>
-                <input type="tel" id="editCPhone" class="form-control mb-2">
-                <label class="small text-info">الملحقات:</label>
-                <input type="text" id="editAccessories" class="form-control mb-2">
-                
-                <div class="row g-2 mb-2">
-                    <div class="col-6">
-                        <label class="small text-info">تاريخ الاستلام:</label>
-                        <input type="date" id="editReceiveDate" class="form-control">
-                    </div>
-                    <div class="col-6">
-                        <label class="small text-info">تاريخ التسليم المتوقع:</label>
-                        <input type="date" id="editDeliveryDate" class="form-control">
-                    </div>
-                </div>
-
-                <div class="row g-2 mb-2">
-                    <div class="col-6">
-                        <label class="small text-info">الحالة:</label>
-                        <select id="editStatus" class="form-select">
-                            <option value="جاهز للصيانة">استلام</option>
-                            <option value="قيد الصيانة">قيد الصيانة</option>
-                            <option value="انتهى (جاهز)">انتهى (جاهز)</option>
-                            <option value="تم التسليم">تم التسليم</option>
-                            <option value="قطع غير متوفرة">قطع غير متوفرة</option>
-                            <option value="غير قابل للصيانة">غير قابل للصيانة</option>
-                        </select>
-                    </div>
-                    <div class="col-6">
-                        <label class="small text-info">التكلفة:</label>
-                        <input type="number" id="editCost" class="form-control">
-                    </div>
-                </div>
-                <label class="small text-info">ملاحظات فنية:</label>
-                <textarea id="editNotes" class="form-control"></textarea>
-            </div>
-            <div class="modal-footer p-1"><button type="submit" class="btn btn-success w-100">حفظ التعديلات</button></div>
-        </form>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    const BASE_DB_URL = "https://repairshop-e2483-default-rtdb.firebaseio.com"; 
-
-    document.getElementById('addDevModal').addEventListener('show.bs.modal', function () {
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('dReceiveDate').value = today;
-    });
-
-    async function api(path, method = "GET", body = null) {
-        try {
-            document.getElementById('loading-overlay').style.display = 'flex';
-            const fullUrl = `${BASE_DB_URL}/${path}.json`;
-            const options = { 
-                method, 
-                headers: { 'Content-Type': 'application/json' } 
-            };
-            if (body) options.body = JSON.stringify(body);
-            
-            const res = await fetch(fullUrl, options);
-            document.getElementById('loading-overlay').style.display = 'none';
-            
-            if (!res.ok) return null;
-            return await res.json();
-        } catch (error) {
-            document.getElementById('loading-overlay').style.display = 'none';
-            console.error("خطأ اتصال:", error);
-            return null;
-        }
-    }
-
-    async function loadAll() {
-        const data = await api("data");
-        
-        if (!data) {
-            document.getElementById('devContainer').innerHTML = `
-                <div class="alert alert-warning text-center m-3">
-                    <h5>تنبيه من السيرفر:</h5>
-                    <p>الصفحة تعمل بنجاح، ولكن هناك عائق يمنع الاتصال بـ Firebase.</p>
-                    <small>تأكد من عدم وجود إضافات حجب إعلانات (AdBlock) في متصفحك، أو جرب فتح الصفحة من شبكة إنترنت أخرى.</small>
-                </div>`;
-            return;
-        }
-        
-        const cleanData = data || { devices: {}, parts: {} };
-        render(cleanData);
-        updateStats(cleanData);
-        runFilter(); 
-    }
-
-    function updateStats(db) {
-        const devs = Object.values(db.devices || {});
-        document.getElementById('stat-receive').innerText = devs.filter(d => d.status === 'جاهز للصيانة').length;
-        document.getElementById('stat-active').innerText = devs.filter(d => d.status === 'قيد الصيانة').length;
-        document.getElementById('stat-ready').innerText = devs.filter(d => d.status === 'انتهى (جاهز)').length;
-        document.getElementById('stat-delivered').innerText = devs.filter(d => d.status === 'تم التسليم').length;
-    }
-
-    function render(db) {
-        const devDiv = document.getElementById('devContainer');
-        devDiv.innerHTML = '';
-        Object.values(db.devices || {}).reverse().forEach(d => {
-            let sClass = '';
-            switch(d.status) {
-                case 'انتهى (جاهز)': sClass = 'bg-success'; break;
-                case 'قيد الصيانة': sClass = 'bg-warning text-dark'; break;
-                case 'جاهز للصيانة': sClass = 'bg-info'; break;
-                case 'قطع غير متوفرة': sClass = 'bg-danger'; break;
-                case 'تم التسليم': sClass = 'bg-secondary'; break;
-                case 'غير قابل للصيانة': sClass = 'status-unrepairable'; break;
-                default: sClass = 'bg-secondary';
-            }
-
-            devDiv.innerHTML += `
-                <div class="device-card dev-col" data-status="${d.status}" onclick="openEdit('${d.id}')">
-                    <div class="d-flex justify-content-between mb-1">
-                        <b style="color:var(--customer-color)">${escapeHtml(d.name)}</b>
-                        <span class="badge ${sClass}" style="font-size:0.6rem">${d.status}</span>
-                    </div>
-                    <div class="small text-white-50"><i class="fas fa-mobile-alt"></i> ${escapeHtml(d.type)} | <i class="fas fa-tools"></i> ${escapeHtml(d.fault)}</div>
-                    
-                    <div class="extra-info">
-                        ${d.phone ? `<span><i class="fas fa-phone-alt"></i> ${d.phone}</span>` : ''}
-                        ${d.imei ? `<span><i class="fas fa-barcode"></i> ${escapeHtml(d.imei)}</span>` : ''}
-                        ${d.accessories ? `<span><i class="fas fa-plug"></i> ملحقات: ${escapeHtml(d.accessories)}</span>` : ''}
-                    </div>
-
-                    <div class="extra-info border-top border-secondary pt-1 mt-1 text-white-50" style="font-size: 0.7rem;">
-                        ${d.receiveDate ? `<span><i class="fas fa-calendar-plus text-info"></i> استلام: ${d.receiveDate}</span>` : ''}
-                        ${d.deliveryDate ? `<span><i class="fas fa-calendar-check text-success"></i> تسليم: ${d.deliveryDate}</span>` : ''}
-                    </div>
-
-                    ${d.notes ? `<div class="notes-area"><b>ملاحظة:</b> ${escapeHtml(d.notes)}</div>` : ''}
-                    <div class="d-flex justify-content-between align-items-center mt-2">
-                        <span class="fw-bold text-white">${d.cost || 0} ج.م</span>
-                        <div class="d-flex align-items-center gap-3">
-                            <i class="fas fa-comment-dots sms-icon" title="إرسال SMS" onclick="event.stopPropagation(); sendSMS('${d.id}')"></i>
-                            <i class="fab fa-whatsapp wa-icon" title="إرسال واتساب" onclick="event.stopPropagation(); sendWA('${d.id}')"></i>
-                            <i class="fas fa-trash-alt del-icon" title="حذف" onclick="event.stopPropagation(); deleteItem('devices/${d.id}')"></i>
-                        </div>
-                    </div>
-                </div>`;
-        });
-
-        window.currentDevices = db.devices || {};
-
-        const partsCont = document.getElementById('partsContainer');
-        partsCont.innerHTML = '';
-        Object.values(db.parts || {}).forEach(p => {
-            partsCont.innerHTML += `<div class="list-item"><div><b>${escapeHtml(p.name)}</b><br><small class="text-info">لجهاز: ${escapeHtml(p.devInfo)}</small></div><i class="fas fa-check-circle text-success fs-4" onclick="resolvePart('${p.id}', '${p.deviceId}')"></i></div>`;
-        });
-    }
-
-    function runFilter() {
-        let searchText = document.getElementById('search').value.toLowerCase();
-        let statusValue = document.getElementById('statusFilter').value;
-        
-        document.querySelectorAll('.dev-col').forEach(card => {
-            let textMatch = card.innerText.toLowerCase().includes(searchText);
-            let statusMatch = (statusValue === "الكل" || card.getAttribute('data-status') === statusValue);
-            
-            card.style.display = (textMatch && statusMatch) ? 'block' : 'none';
-        });
-    }
-
-    document.getElementById('devForm').onsubmit = async function(e) {
-        e.preventDefault();
-        const id = "ID" + Date.now();
-        await api(`data/devices/${id}`, "PUT", {
-            id, name: document.getElementById('cName').value, phone: document.getElementById('cPhone').value,
-            type: document.getElementById('dType').value, imei: document.getElementById('dImei').value,
-            fault: document.getElementById('dFault').value, notes: document.getElementById('dNotes').value,
-            cost: document.getElementById('dCost').value, status: 'جاهز للصيانة',
-            accessories: document.getElementById('dAccessories').value,
-            receiveDate: document.getElementById('dReceiveDate').value,
-            deliveryDate: document.getElementById('dDeliveryDate').value
-        });
-        bootstrap.Modal.getInstance(document.getElementById('addDevModal')).hide();
-        this.reset(); loadAll();
-    };
-
-    async function openEdit(id) {
-        const d = await api(`data/devices/${id}`);
-        if(!d) return;
-        document.getElementById('editId').value = id;
-        document.getElementById('editCName').value = d.name || '';
-        document.getElementById('editCPhone').value = d.phone || '';
-        document.getElementById('editStatus').value = d.status || 'جاهز للصيانة';
-        document.getElementById('editCost').value = d.cost || 0;
-        document.getElementById('editNotes').value = d.notes || '';
-        document.getElementById('editAccessories').value = d.accessories || '';
-        document.getElementById('editReceiveDate').value = d.receiveDate || '';
-        document.getElementById('editDeliveryDate').value = d.deliveryDate || '';
-        new bootstrap.Modal(document.getElementById('editModal')).show();
-    }
-
-    document.getElementById('editForm').onsubmit = async function(e) {
-        e.preventDefault();
-        const id = document.getElementById('editId').value;
-        const status = document.getElementById('editStatus').value;
-        
-        if (status === "قطع غير متوفرة") {
-            let partName = prompt("ما هي القطعة الناقصة؟");
-            if (partName) {
-                const pId = "PART" + Date.now();
-                const devData = await api(`data/devices/${id}`);
-                if(devData) {
-                    await api(`data/parts/${pId}`, "PUT", { id: pId, deviceId: id, name: partName, devInfo: `${devData.name} - ${devData.type}` });
+    <title>سنترال محمد الجنبيهي - لوحة الإحصائيات والرئيسية</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            glow: 'rgba(99, 102, 241, 0.35)'
+                        },
+                        dark: {
+                            bg: '#080c14',
+                            surface: '#0f172a',
+                            card: '#141e33',
+                            border: '#1e293b'
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif']
+                    }
                 }
             }
         }
-        await api(`data/devices/${id}`, "PATCH", { 
-            name: document.getElementById('editCName').value, phone: document.getElementById('editCPhone').value,
-            status: status, cost: document.getElementById('editCost').value, notes: document.getElementById('editNotes').value,
-            accessories: document.getElementById('editAccessories').value,
-            receiveDate: document.getElementById('editReceiveDate').value,
-            deliveryDate: document.getElementById('editDeliveryDate').value
-        });
-        bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
-        loadAll();
-    };
-
-    async function resolvePart(partId, deviceId) {
-        if(confirm("هل تم توفير القطعة؟")) {
-            await api(`data/parts/${partId}`, "DELETE");
-            await api(`data/devices/${deviceId}`, "PATCH", { status: "قيد الصيانة" });
-            loadAll();
-        }
-    }
-
-    async function deleteItem(path) { if(confirm('حذف نهائي؟')) { await api(`data/${path}`, "DELETE"); loadAll(); } }
+    </script>
     
-    function buildMessage(d, isWhatsApp = true) {
-        const clientName = d.name || 'عميلنا العزيز';
-        const status = d.status || 'غير محدد';
-        const fault = d.fault || 'غير محدد';
-        const accessories = d.accessories || 'لا يوجد';
-        const receiveDate = d.receiveDate || 'غير محدد';
-        const deliveryDate = d.deliveryDate || 'غير محدد';
-        const cost = d.cost ? `${d.cost} ج.م` : 'لم تحدد بعد';
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-        if (isWhatsApp) {
-            let msg = `*الأستاذ / ${clientName}* 🌸\n\n`;
-            msg += `📍 *حالة الجهاز:* ${status}\n`;
-            msg += `🔧 *العطل:* ${fault}\n`;
-            msg += `🔌 *ملحقات الجهاز:* ${accessories}\n`;
-            msg += `📥 *تاريخ الاستلام:* ${receiveDate}\n`;
-            msg += `📤 *تاريخ التسليم المتوقع:* ${deliveryDate}\n`;
-            msg += `💰 *تكلفة الصيانة:* *${cost}*\n\n`;
-            msg += `سنترال محمد الجنبيهي يرحب بكم دائماً ✨`;
-            return msg;
-        } else {
-            let msg = `الأستاذ/ ${clientName}\n`;
-            msg += `حالة الجهاز: ${status}\n`;
-            msg += `العطل: ${fault}\n`;
-            msg += `الملحقات: ${accessories}\n`;
-            msg += `الاستلام: ${receiveDate}\n`;
-            msg += `التسليم: ${deliveryDate}\n`;
-            msg += `التكلفة: ${cost}\n`;
-            msg += `سنترال محمد الجنبيهي`;
-            return msg;
+    <style>
+        body {
+            font-family: 'Cairo', system-ui, sans-serif;
+            background-color: #080c14;
+            color: #f1f5f9;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.05) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .glass-card {
+            background: rgba(20, 30, 51, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .glass-card-hover {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card-hover:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.25);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-20 md:pb-10 flex flex-col">
+
+<!-- Loading Spinner Overlay -->
+<div id="loadingOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md hidden">
+    <div class="relative w-14 h-14">
+        <div class="w-14 h-14 rounded-full border-4 border-indigo-500/20 border-t-indigo-500 animate-spin"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+            <i class="fas fa-microchip text-indigo-400 animate-pulse"></i>
+        </div>
+    </div>
+    <p class="mt-3 text-xs font-semibold text-slate-300">جاري تحميل البيانات...</p>
+</div>
+
+<!-- Header & Navigation Bar -->
+<header class="sticky top-0 z-40 glass-card border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-sky-500 flex items-center justify-center shadow-lg shadow-indigo-600/30">
+                <i class="fas fa-mobile-screen-button text-white text-lg"></i>
+            </div>
+            <div>
+                <h1 class="text-base sm:text-lg font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-300 bg-clip-text text-transparent">
+                    سنترال محمد الجنبيهي
+                </h1>
+                <p class="text-[10px] text-slate-400">لوحة المتابعة والتحكم</p>
+            </div>
+        </div>
+
+        <!-- Desktop Navigation Tabs -->
+        <nav class="hidden md:flex items-center gap-2 p-1 rounded-2xl bg-dark-surface/90 border border-white/5 text-xs font-bold">
+            <a href="index.html" class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-md flex items-center gap-2">
+                <i class="fas fa-chart-pie"></i> الرئيسية
+            </a>
+            <a href="devices.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
+                <i class="fas fa-screwdriver-wrench"></i> الأجهزة
+            </a>
+            <a href="clients.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
+                <i class="fas fa-users"></i> العملاء
+            </a>
+            <a href="parts.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
+                <i class="fas fa-cart-shopping text-rose-400"></i> النواقص
+                <span id="badgePartsCount" class="bg-rose-500/20 text-rose-300 text-[10px] px-1.5 py-0.5 rounded-full font-bold">0</span>
+            </a>
+        </nav>
+
+        <!-- Direct Fast Action Button -->
+        <div class="flex items-center gap-2">
+            <a href="devices.html?action=add" class="bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-indigo-600/30 transition flex items-center gap-1.5">
+                <i class="fas fa-plus"></i>
+                <span>استلام جهاز</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 flex-1 w-full space-y-6">
+
+    <!-- KPI Matrix Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <a href="devices.html?status=جاهز للصيانة" class="glass-card glass-card-hover p-4 rounded-2xl cursor-pointer block">
+            <div class="flex justify-between items-center text-cyan-400">
+                <span class="text-xs font-bold">استلام جديد</span>
+                <i class="fas fa-inbox text-lg"></i>
+            </div>
+            <div class="mt-2 text-2xl font-black text-white" id="statReceive">0</div>
+            <span class="text-[10px] text-slate-400">أجهزة بانتظار الفحص</span>
+        </a>
+
+        <a href="devices.html?status=قيد الصيانة" class="glass-card glass-card-hover p-4 rounded-2xl cursor-pointer block">
+            <div class="flex justify-between items-center text-amber-400">
+                <span class="text-xs font-bold">قيد الصيانة</span>
+                <i class="fas fa-microchip text-lg"></i>
+            </div>
+            <div class="mt-2 text-2xl font-black text-white" id="statActive">0</div>
+            <span class="text-[10px] text-slate-400">أجهزة قيد العمل</span>
+        </a>
+
+        <a href="devices.html?status=انتهى (جاهز)" class="glass-card glass-card-hover p-4 rounded-2xl cursor-pointer block">
+            <div class="flex justify-between items-center text-emerald-400">
+                <span class="text-xs font-bold">جاهز للتسليم</span>
+                <i class="fas fa-check-circle text-lg"></i>
+            </div>
+            <div class="mt-2 text-2xl font-black text-white" id="statReady">0</div>
+            <span class="text-[10px] text-slate-400">تم الانتهاء وجاهز</span>
+        </a>
+
+        <a href="devices.html?status=تم التسليم" class="glass-card glass-card-hover p-4 rounded-2xl cursor-pointer block">
+            <div class="flex justify-between items-center text-slate-400">
+                <span class="text-xs font-bold">تم التسليم</span>
+                <i class="fas fa-handshake text-lg"></i>
+            </div>
+            <div class="mt-2 text-2xl font-black text-white" id="statDelivered">0</div>
+            <span class="text-[10px] text-slate-400">عمليات صيانة ناجحة</span>
+        </a>
+    </div>
+
+    <!-- Revenue & Today Due Alert Banner -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="glass-card p-5 rounded-2xl border-indigo-500/20 bg-gradient-to-br from-indigo-950/30 to-slate-900 flex items-center justify-between">
+            <div>
+                <span class="text-xs text-indigo-300 font-semibold block">إجمالي أرباح وعائدات الصيانة</span>
+                <span class="text-2xl font-black text-emerald-400 mt-1 block" id="statTotalRev">0 ج.م</span>
+                <span class="text-[10px] text-slate-400">المحسوبة من كافة الأجهزة المسجلة</span>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl">
+                <i class="fas fa-wallet"></i>
+            </div>
+        </div>
+
+        <a href="devices.html?filter=today" class="glass-card glass-card-hover p-5 rounded-2xl border-rose-500/20 bg-gradient-to-br from-rose-950/20 to-slate-900 flex items-center justify-between block">
+            <div>
+                <span class="text-xs text-rose-300 font-semibold block">مواعيد تسليمات اليوم</span>
+                <span class="text-2xl font-black text-rose-400 mt-1 block" id="statTodayDue">0</span>
+                <span class="text-[10px] text-slate-400">اضغط لعرض الأجهزة المطلوب تسليمها اليوم</span>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-xl">
+                <i class="fas fa-bell animate-pulse"></i>
+            </div>
+        </a>
+    </div>
+
+    <!-- Recent Devices Feed -->
+    <div class="glass-card p-5 rounded-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-white/5 pb-3">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <i class="fas fa-clock-rotate-left text-indigo-400"></i> آخر الأجهزة المستلمة حديثاً
+            </h3>
+            <a href="devices.html" class="text-xs text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-1">
+                عرض كل الأجهزة <i class="fas fa-arrow-left text-[10px]"></i>
+            </a>
+        </div>
+        <div id="recentDevicesList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <!-- Dynamic Injection -->
+        </div>
+    </div>
+
+    <!-- Quick Shortcuts Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+        <a href="devices.html" class="glass-card glass-card-hover p-4 rounded-2xl flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-base">
+                <i class="fas fa-list-check"></i>
+            </div>
+            <div>
+                <b class="text-xs text-white block">جدول الأجهزة</b>
+                <span class="text-[10px] text-slate-400">إدارة وتحديث الكروت</span>
+            </div>
+        </a>
+
+        <a href="clients.html" class="glass-card glass-card-hover p-4 rounded-2xl flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-sky-600/20 text-sky-400 flex items-center justify-center text-base">
+                <i class="fas fa-address-book"></i>
+            </div>
+            <div>
+                <b class="text-xs text-white block">دليل العملاء</b>
+                <span class="text-[10px] text-slate-400">سجل وحسابات العملاء</span>
+            </div>
+        </a>
+
+        <a href="parts.html" class="glass-card glass-card-hover p-4 rounded-2xl flex items-center gap-3 col-span-2 sm:col-span-1">
+            <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-base">
+                <i class="fas fa-boxes-stacked"></i>
+            </div>
+            <div>
+                <b class="text-xs text-white block">النواقص وقطع الغيار</b>
+                <span class="text-[10px] text-slate-400">تتبع القطع المطلوبة</span>
+            </div>
+        </a>
+    </div>
+
+</main>
+
+<!-- Mobile Bottom App Bar -->
+<nav class="md:hidden fixed bottom-0 inset-x-0 glass-card border-t border-white/10 z-40 py-2 px-4 flex justify-around">
+    <a href="index.html" class="flex flex-col items-center gap-1 text-[10px] text-indigo-400 font-bold">
+        <i class="fas fa-chart-pie text-base"></i> الرئيسية
+    </a>
+    <a href="devices.html" class="flex flex-col items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-400">
+        <i class="fas fa-screwdriver-wrench text-base"></i> الأجهزة
+    </a>
+    <a href="clients.html" class="flex flex-col items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-400">
+        <i class="fas fa-users text-base"></i> العملاء
+    </a>
+    <a href="parts.html" class="flex flex-col items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-400">
+        <i class="fas fa-cart-shopping text-base text-rose-400"></i> النواقص
+    </a>
+</nav>
+
+<script>
+    const BASE_DB_URL = "https://repairshop-e2483-default-rtdb.firebaseio.com";
+
+    document.addEventListener('DOMContentLoaded', fetchDashboardData);
+
+    async function fetchDashboardData() {
+        showLoading(true);
+        try {
+            const res = await fetch(`${BASE_DB_URL}/data.json`);
+            showLoading(false);
+            if (!res.ok) return;
+            const data = await res.json();
+            
+            const devices = (data && data.devices) ? Object.values(data.devices) : [];
+            const parts = (data && data.parts) ? Object.values(data.parts) : [];
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            // Counts
+            document.getElementById('statReceive').innerText = devices.filter(d => d.status === 'جاهز للصيانة').length;
+            document.getElementById('statActive').innerText = devices.filter(d => d.status === 'قيد الصيانة').length;
+            document.getElementById('statReady').innerText = devices.filter(d => d.status === 'انتهى (جاهز)').length;
+            document.getElementById('statDelivered').innerText = devices.filter(d => d.status === 'تم التسليم').length;
+
+            // Total revenue
+            const totalRev = devices.reduce((sum, d) => sum + (Number(d.cost) || 0), 0);
+            document.getElementById('statTotalRev').innerText = `${totalRev.toLocaleString('ar-EG')} ج.م`;
+
+            // Today Deliveries
+            const todayDue = devices.filter(d => d.deliveryDate === todayStr && d.status !== 'تم التسليم').length;
+            document.getElementById('statTodayDue').innerText = todayDue;
+
+            // Parts
+            document.getElementById('badgePartsCount').innerText = parts.length;
+
+            // Recent devices list
+            const recentCont = document.getElementById('recentDevicesList');
+            recentCont.innerHTML = '';
+            devices.slice(-6).reverse().forEach(d => {
+                recentCont.innerHTML += `
+                    <a href="client-details.html?name=${encodeURIComponent(d.name)}" class="bg-dark-bg/70 border border-white/5 p-3.5 rounded-2xl hover:border-indigo-500/40 transition cursor-pointer flex justify-between items-center block">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold text-xs">
+                                ${d.name ? d.name.charAt(0) : '?'}
+                            </div>
+                            <div>
+                                <b class="text-xs text-white block">${escapeHtml(d.name)}</b>
+                                <span class="text-[10px] text-slate-400">${escapeHtml(d.type)} • ${escapeHtml(d.fault)}</span>
+                            </div>
+                        </div>
+                        <div class="text-left">
+                            <span class="text-[10px] bg-white/5 text-slate-300 px-2 py-0.5 rounded-md font-semibold block mb-1">${d.status}</span>
+                            <span class="text-xs font-black text-emerald-400">${d.cost || 0} ج.م</span>
+                        </div>
+                    </a>`;
+            });
+
+        } catch (e) {
+            showLoading(false);
+            console.error(e);
         }
     }
 
-    function sendWA(id) {
-        const d = (window.currentDevices && window.currentDevices[id]) ? window.currentDevices[id] : null;
-        if (!d || !d.phone) return alert("لا يوجد رقم هاتف مسجل لهذا العميل");
-
-        const message = buildMessage(d, true);
-        const phone = d.phone.startsWith('0') ? d.phone.substring(1) : d.phone;
-        window.open(`https://wa.me/20${phone}?text=${encodeURIComponent(message)}`);
+    function showLoading(show) {
+        document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
     }
 
-    function sendSMS(id) {
-        const d = (window.currentDevices && window.currentDevices[id]) ? window.currentDevices[id] : null;
-        if (!d || !d.phone) return alert("لا يوجد رقم هاتف مسجل لهذا العميل");
-
-        const message = buildMessage(d, false);
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        const separator = isIOS ? '&' : '?';
-        
-        window.location.href = `sms:${d.phone}${separator}body=${encodeURIComponent(message)}`;
+    function escapeHtml(s) {
+        return s ? String(s).replace(/[&<>'"]/g, t => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]||t)) : '';
     }
-
-    function escapeHtml(str) { return str ? str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])) : ''; }
-    function closeSidebar() { bootstrap.Offcanvas.getInstance(document.getElementById('sidebarMenu'))?.hide(); }
-
-    loadAll();
 </script>
 </body>
 </html>

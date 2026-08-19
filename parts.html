@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سنترال محمد الجنبيهي - النواقص وقطع الغيار</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            glow: 'rgba(99, 102, 241, 0.35)'
+                        },
+                        dark: {
+                            bg: '#080c14',
+                            surface: '#0f172a',
+                            card: '#141e33',
+                            border: '#1e293b'
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Cairo', system-ui, sans-serif;
+            background-color: #080c14;
+            color: #f1f5f9;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.05) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .glass-card {
+            background: rgba(20, 30, 51, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .glass-card-hover {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card-hover:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.25);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-20 md:pb-10 flex flex-col">
+
+<!-- Loading Spinner Overlay -->
+<div id="loadingOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md hidden">
+    <div class="relative w-14 h-14">
+        <div class="w-14 h-14 rounded-full border-4 border-indigo-500/20 border-t-indigo-500 animate-spin"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+            <i class="fas fa-microchip text-indigo-400 animate-pulse"></i>
+        </div>
+    </div>
+    <p class="mt-3 text-xs font-semibold text-slate-300">جاري تحميل النواقص...</p>
+</div>
+
+<!-- Header & Navigation Bar -->
+<header class="sticky top-0 z-40 glass-card border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-rose-500 flex items-center justify-center shadow-lg shadow-indigo-600/30">
+                <i class="fas fa-cart-shopping text-white text-lg"></i>
+            </div>
+            <div>
+                <h1 class="text-base sm:text-lg font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-300 bg-clip-text text-transparent">
+                    سنترال محمد الجنبيهي
+                </h1>
+                <p class="text-[10px] text-slate-400">تتبع قطع الغيار والنواقص</p>
+            </div>
+        </div>
+
+        <!-- Desktop Navigation Tabs -->
+        <nav class="hidden md:flex items-center gap-2 p-1 rounded-2xl bg-dark-surface/90 border border-white/5 text-xs font-bold">
+            <a href="index.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
+                <i class="fas fa-chart-pie"></i> الرئيسية
+            </a>
+            <a href="devices.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
+                <i class="fas fa-screwdriver-wrench"></i> الأجهزة
+            </a>
+            <a href="clients.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
+                <i class="fas fa-users"></i> العملاء
+            </a>
+            <a href="parts.html" class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-md flex items-center gap-2">
+                <i class="fas fa-cart-shopping text-rose-400"></i> النواقص
+            </a>
+        </nav>
+    </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 flex-1 w-full space-y-4">
+
+    <div class="glass-card p-4 rounded-2xl flex items-center justify-between border-rose-500/20">
+        <div class="flex items-center gap-2 text-rose-400">
+            <i class="fas fa-boxes-stacked text-lg"></i>
+            <h3 class="text-sm font-bold">قائمة قطع الغيار المطلوبة لصيانة الأجهزة</h3>
+        </div>
+        <span id="partsCountBadge" class="bg-rose-500/20 text-rose-300 text-xs px-2.5 py-1 rounded-full font-bold">0 قطع</span>
+    </div>
+
+    <!-- Parts Grid -->
+    <div id="partsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Rendered via JS -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden glass-card p-12 rounded-3xl text-center">
+        <i class="fas fa-circle-check text-emerald-400 text-4xl mb-3"></i>
+        <h4 class="text-sm font-bold text-white">لا توجد نواقص حالياً!</h4>
+        <p class="text-xs text-slate-400 mt-1">جميع قطع الغيار متوفرة والأجهزة قيد الصيانة.</p>
+    </div>
+
+</main>
+
+<!-- Mobile Bottom App Bar -->
+<nav class="md:hidden fixed bottom-0 inset-x-0 glass-card border-t border-white/10 z-40 py-2 px-4 flex justify-around">
+    <a href="index.html" class="flex flex-col items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-400">
+        <i class="fas fa-chart-pie text-base"></i> الرئيسية
+    </a>
+    <a href="devices.html" class="flex flex-col items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-400">
+        <i class="fas fa-screwdriver-wrench text-base"></i> الأجهزة
+    </a>
+    <a href="clients.html" class="flex flex-col items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-400">
+        <i class="fas fa-users text-base"></i> العملاء
+    </a>
+    <a href="parts.html" class="flex flex-col items-center gap-1 text-[10px] text-indigo-400 font-bold">
+        <i class="fas fa-cart-shopping text-base text-rose-400"></i> النواقص
+    </a>
+</nav>
+
+<script>
+    const BASE_DB_URL = "https://repairshop-e2483-default-rtdb.firebaseio.com";
+    let partsState = {};
+
+    document.addEventListener('DOMContentLoaded', fetchParts);
+
+    async function fetchParts() {
+        showLoading(true);
+        try {
+            const res = await fetch(`${BASE_DB_URL}/data/parts.json`);
+            showLoading(false);
+            if (!res.ok) return;
+            const data = await res.json();
+            partsState = data || {};
+            renderParts();
+        } catch (e) {
+            showLoading(false);
+            console.error(e);
+        }
+    }
+
+    function renderParts() {
+        const cont = document.getElementById('partsContainer');
+        cont.innerHTML = '';
+        const parts = Object.values(partsState);
+        document.getElementById('partsCountBadge').innerText = `${parts.length} قطع`;
+
+        if (parts.length === 0) {
+            document.getElementById('emptyState').classList.remove('hidden');
+            return;
+        }
+        document.getElementById('emptyState').classList.add('hidden');
+
+        parts.forEach(p => {
+            cont.innerHTML += `
+                <div class="glass-card p-4 rounded-2xl flex items-center justify-between border-rose-500/20 glass-card-hover">
+                    <div>
+                        <h5 class="text-sm font-bold text-rose-400">${escapeHtml(p.name)}</h5>
+                        <p class="text-xs text-slate-400 mt-1"><i class="fas fa-link ml-1 text-indigo-400"></i>جهاز: ${escapeHtml(p.devInfo)}</p>
+                    </div>
+                    <button onclick="resolvePart('${p.id}', '${p.deviceId}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white text-xs px-3 py-1.5 rounded-xl transition font-semibold">
+                        <i class="fas fa-check ml-1"></i> تم التوفير
+                    </button>
+                </div>`;
+        });
+    }
+
+    async function resolvePart(partId, deviceId) {
+        if (confirm("هل تم توفير القطعة بنجاح وتحويل حالة الجهاز إلى 'قيد الصيانة'؟")) {
+            showLoading(true);
+            await fetch(`${BASE_DB_URL}/data/parts/${partId}.json`, { method: "DELETE" });
+            await fetch(`${BASE_DB_URL}/data/devices/${deviceId}.json`, {
+                method: "PATCH",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: "قيد الصيانة" })
+            });
+            showLoading(false);
+            fetchParts();
+        }
+    }
+
+    function showLoading(show) {
+        document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
+    }
+
+    function escapeHtml(s) {
+        return s ? String(s).replace(/[&<>'"]/g, t => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]||t)) : '';
+    }
+</script>
+</body>
+</html>

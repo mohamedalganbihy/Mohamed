@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سنترال محمد الجنبيهي - ملف العميل</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            glow: 'rgba(99, 102, 241, 0.35)'
+                        },
+                        dark: {
+                            bg: '#080c14',
+                            surface: '#0f172a',
+                            card: '#141e33',
+                            border: '#1e293b'
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- QR Code Generator Lib -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Cairo', system-ui, sans-serif;
+            background-color: #080c14;
+            color: #f1f5f9;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.05) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .glass-card {
+            background: rgba(20, 30, 51, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .glass-card-hover {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card-hover:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.25);
+            transform: translateY(-2px);
+        }
+
+        @media print {
+            body * { visibility: hidden; }
+            #receiptModal, #receiptModal * { visibility: visible; }
+            #receiptModal { position: fixed; inset: 0; background: white !important; color: black !important; padding: 20px; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-20 md:pb-10 flex flex-col">
+
+<!-- Loading Spinner Overlay -->
+<div id="loadingOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md hidden">
+    <div class="relative w-14 h-14">
+        <div class="w-14 h-14 rounded-full border-4 border-indigo-500/20 border-t-indigo-500 animate-spin"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+            <i class="fas fa-microchip text-indigo-400 animate-pulse"></i>
+        </div>
+    </div>
+    <p class="mt-3 text-xs font-semibold text-slate-300">جاري تحميل بيانات العميل...</p>
+</div>
+
+<!-- Header & Navigation Bar -->
+<header class="sticky top-0 z-40 glass-card border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <a href="clients.html" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center transition">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <div>
+                <h1 class="text-base sm:text-lg font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-300 bg-clip-text text-transparent">
+                    ملف وبيانات العميل
+                </h1>
+                <p class="text-[10px] text-slate-400">السجل الكامل للأجهزة والصيانات</p>
+            </div>
+        </div>
+
+        <!-- Desktop Navigation Tabs -->
+        <nav class="hidden md:flex items-center gap-2 p-1 rounded-2xl bg-dark-surface/90 border border-white/5 text-xs font-bold">
+            <a href="index.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
+                <i class="fas fa-chart-pie"></i> الرئيسية
+            </a>
+            <a href="devices.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
+                <i class="fas fa-screwdriver-wrench"></i> الأجهزة
+            </a>
+            <a href="clients.html" class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-md flex items-center gap-2">
+                <i class="fas fa-users"></i> العملاء
+            </a>
+            <a href="parts.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
+                <i class="fas fa-cart-shopping text-rose-400"></i> النواقص
+            </a>
+        </nav>
+    </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 flex-1 w-full space-y-6">
+
+    <!-- Client Header Profile Card -->
+    <div class="glass-card p-6 rounded-3xl relative overflow-hidden border-indigo-500/30">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-2xl font-black text-white shadow-lg shadow-indigo-600/30">
+                    <span id="profAvatar">?</span>
+                </div>
+                <div>
+                    <h2 class="text-xl font-black text-white" id="profName">-</h2>
+                    <div class="flex flex-wrap items-center gap-3 mt-1 text-xs text-slate-400">
+                        <span id="profPhone" class="font-semibold text-emerald-400" dir="ltr">-</span>
+                        <span>•</span>
+                        <span id="profDevicesCount" class="text-slate-300">0 أجهزة مسجلة</span>
+                        <span>•</span>
+                        <span id="profTotalSpent" class="text-indigo-300 font-bold">0 ج.م إجمالي الحساب</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Direct Contact Toolbar -->
+            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-0 border-white/10">
+                <a id="profCallBtn" href="#" class="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white text-xs font-bold transition flex items-center justify-center gap-2">
+                    <i class="fas fa-phone"></i> اتصال
+                </a>
+                <button id="profWaBtn" class="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white text-xs font-bold transition flex items-center justify-center gap-2">
+                    <i class="fab fa-whatsapp text-sm"></i> واتساب
+                </button>
+                <button id="profSmsBtn" class="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-sky-500/20 hover:bg-sky-500 text-sky-300 hover:text-white text-xs font-bold transition flex items-center justify-center gap-2">
+                    <i class="fas fa-comment-dots"></i> SMS
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- History of Devices for this Client -->
+    <div class="space-y-3">
+        <h3 class="text-sm font-bold text-slate-300 flex items-center gap-2">
+            <i class="fas fa-folder-tree text-indigo-400"></i> سجل أجهزة وصيانات العميل:
+        </h3>
+        <div id="clientDevicesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Rendered via JS -->
+        </div>
+    </div>
+
+</main>
+
+<!-- MODAL: RECEIPT & QR -->
+<div id="receiptModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+    <div id="printableReceipt" class="glass-card bg-white text-slate-900 rounded-3xl w-full max-w-sm overflow-hidden p-6 relative">
+        <button onclick="closeModal('receiptModal')" class="no-print absolute left-4 top-4 text-slate-400 hover:text-slate-700">
+            <i class="fas fa-xmark text-lg"></i>
+        </button>
+
+        <div class="text-center pb-3 border-b border-slate-200">
+            <h2 class="text-lg font-black text-indigo-900">سنترال محمد الجنبيهي</h2>
+            <p class="text-[11px] text-slate-500 mt-0.5">إيصال استلام جهاز وصيانة</p>
+        </div>
+
+        <div class="my-3 space-y-1.5 text-xs">
+            <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">العميل:</span><span id="rcptName" class="font-bold"></span></div>
+            <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">الهاتف:</span><span id="rcptPhone" class="font-bold" dir="ltr"></span></div>
+            <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">الجهاز:</span><span id="rcptType" class="font-bold"></span></div>
+            <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">العطل:</span><span id="rcptFault" class="font-semibold text-rose-600"></span></div>
+            <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">الملحقات:</span><span id="rcptAccessories"></span></div>
+            <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">الاستلام:</span><span id="rcptReceiveDate"></span></div>
+            <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">التسليم المتوقع:</span><span id="rcptDeliveryDate"></span></div>
+            <div class="flex justify-between pt-2 text-sm font-extrabold text-indigo-950"><span>التكلفة:</span><span id="rcptCost"></span></div>
+        </div>
+
+        <div class="flex flex-col items-center justify-center my-3">
+            <div id="qrcodeBox" class="p-2 bg-slate-50 rounded-xl border border-slate-200"></div>
+        </div>
+
+        <div class="no-print pt-2 flex gap-2">
+            <button onclick="window.print()" class="flex-1 bg-indigo-600 text-white font-bold py-2 rounded-xl text-xs hover:bg-indigo-700 transition">
+                <i class="fas fa-print ml-1"></i> طباعة الإيصال
+            </button>
+            <button onclick="closeModal('receiptModal')" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-xl text-xs">
+                إغلاق
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const BASE_DB_URL = "https://repairshop-e2483-default-rtdb.firebaseio.com";
+    let clientDevices = [];
+
+    document.addEventListener('DOMContentLoaded', fetchClientDetails);
+
+    async function fetchClientDetails() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientName = urlParams.get('name');
+
+        if (!clientName) {
+            window.location.href = 'clients.html';
+            return;
+        }
+
+        showLoading(true);
+        try {
+            const res = await fetch(`${BASE_DB_URL}/data/devices.json`);
+            showLoading(false);
+            if (!res.ok) return;
+            const data = await res.json();
+            
+            clientDevices = Object.values(data || {}).filter(d => (d.name || '').trim() === clientName.trim());
+            
+            if (clientDevices.length === 0) {
+                alert('لم يتم العثور على أجهزة لهذا العميل');
+                window.location.href = 'clients.html';
+                return;
+            }
+
+            renderClientHeader(clientName);
+            renderClientDevices();
+        } catch (e) {
+            showLoading(false);
+            console.error(e);
+        }
+    }
+
+    function renderClientHeader(clientName) {
+        const first = clientDevices[0];
+        const phone = clientDevices.find(d => d.phone)?.phone || '';
+        const totalSpent = clientDevices.reduce((sum, d) => sum + (Number(d.cost) || 0), 0);
+
+        document.getElementById('profAvatar').innerText = clientName.charAt(0);
+        document.getElementById('profName').innerText = clientName;
+        document.getElementById('profPhone').innerText = phone || 'بدون رقم مسجل';
+        document.getElementById('profDevicesCount').innerText = `${clientDevices.length} أجهزة مسجلة`;
+        document.getElementById('profTotalSpent').innerText = `${totalSpent.toLocaleString('ar-EG')} ج.م إجمالي الحساب`;
+
+        document.getElementById('profCallBtn').href = phone ? `tel:${phone}` : '#';
+        document.getElementById('profWaBtn').onclick = () => phone ? window.open(`https://wa.me/20${phone.startsWith('0')?phone.substring(1):phone}`) : alert('لا يوجد رقم هاتف');
+        document.getElementById('profSmsBtn').onclick = () => phone ? window.location.href = `sms:${phone}` : alert('لا يوجد رقم هاتف');
+    }
+
+    function renderClientDevices() {
+        const cont = document.getElementById('clientDevicesContainer');
+        cont.innerHTML = '';
+
+        clientDevices.reverse().forEach(d => {
+            cont.innerHTML += `
+                <div class="glass-card rounded-2xl p-4 flex flex-col justify-between glass-card-hover space-y-3">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h4 class="font-bold text-sm text-indigo-300">${escapeHtml(d.type)}</h4>
+                                <span class="text-xs text-slate-400 mt-0.5 block">${escapeHtml(d.name)}</span>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/10 bg-white/5 text-slate-300">${d.status}</span>
+                        </div>
+
+                        <div class="bg-dark-bg/60 border border-white/5 rounded-xl p-2 mb-2 text-xs flex items-center gap-2">
+                            <i class="fas fa-wrench text-amber-400 text-xs"></i>
+                            <span class="text-slate-300 truncate">${escapeHtml(d.fault)}</span>
+                        </div>
+
+                        <div class="text-[11px] text-slate-400 mb-2">
+                            <i class="fas fa-plug text-cyan-400 ml-1"></i> ملحقات: ${escapeHtml(d.accessories || 'لا يوجد')}
+                        </div>
+
+                        <div class="flex items-center justify-between text-[10px] text-slate-400 border-t border-white/5 pt-2">
+                            <span><i class="far fa-calendar text-indigo-400 ml-1"></i>استلام: ${d.receiveDate || '-'}</span>
+                            <span><i class="fas fa-truck text-emerald-400 ml-1"></i>تسليم: ${d.deliveryDate || '-'}</span>
+                        </div>
+
+                        ${d.notes ? `<div class="text-[11px] text-amber-300 bg-amber-500/10 p-2 rounded-xl mt-2"><i class="far fa-note-sticky ml-1"></i>${escapeHtml(d.notes)}</div>` : ''}
+                    </div>
+
+                    <div class="flex items-center justify-between border-t border-white/10 pt-3">
+                        <span class="text-xs font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-lg">
+                            ${d.cost ? `${Number(d.cost).toLocaleString('ar-EG')} ج.م` : '0 ج.م'}
+                        </span>
+                        
+                        <div class="flex items-center gap-1">
+                            <button onclick="sendWA('${d.id}')" title="واتساب" class="w-7 h-7 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white flex items-center justify-center text-xs transition"><i class="fab fa-whatsapp"></i></button>
+                            <button onclick="sendSMS('${d.id}')" title="SMS" class="w-7 h-7 rounded-lg bg-sky-500/20 hover:bg-sky-500 text-sky-300 hover:text-white flex items-center justify-center text-xs transition"><i class="fas fa-comment-dots"></i></button>
+                            <button onclick="openReceipt('${d.id}')" title="إيصال" class="w-7 h-7 rounded-lg bg-indigo-500/20 hover:bg-indigo-500 text-indigo-300 hover:text-white flex items-center justify-center text-xs transition"><i class="fas fa-qrcode"></i></button>
+                        </div>
+                    </div>
+                </div>`;
+        });
+    }
+
+    function openReceipt(id) {
+        const d = clientDevices.find(dev => dev.id === id);
+        if (!d) return;
+
+        document.getElementById('rcptName').innerText = d.name || '-';
+        document.getElementById('rcptPhone').innerText = d.phone || '-';
+        document.getElementById('rcptType').innerText = d.type || '-';
+        document.getElementById('rcptFault').innerText = d.fault || '-';
+        document.getElementById('rcptAccessories').innerText = d.accessories || 'بدون';
+        document.getElementById('rcptReceiveDate').innerText = d.receiveDate || '-';
+        document.getElementById('rcptDeliveryDate').innerText = d.deliveryDate || '-';
+        document.getElementById('rcptCost').innerText = d.cost ? `${d.cost} ج.م` : 'غير محدد';
+
+        const qb = document.getElementById('qrcodeBox');
+        qb.innerHTML = '';
+        new QRCode(qb, {
+            text: `سنترال محمد الجنبيهي
+العميل: ${d.name}
+الجهاز: ${d.type}
+العطل: ${d.fault}
+التكلفة: ${d.cost || 0} ج.م`,
+            width: 100, height: 100, colorDark: "#0f172a", colorLight: "#ffffff"
+        });
+
+        openModal('receiptModal');
+    }
+
+    function buildMsg(d, isWA = true) {
+        const name = d.name || 'عميلنا العزيز';
+        const st = d.status || 'غير محدد';
+        const f = d.fault || 'غير محدد';
+        const acc = d.accessories || 'لا يوجد';
+        const rd = d.receiveDate || 'غير محدد';
+        const dd = d.deliveryDate || 'غير محدد';
+        const cost = d.cost ? `${d.cost} ج.م` : 'لم تحدد بعد';
+
+        if (isWA) {
+            return `*الأستاذ / ${name}* 🌸
+
+` +
+                   `📍 *حالة الجهاز:* ${st}
+` +
+                   `🔧 *العطل:* ${f}
+` +
+                   `🔌 *ملحقات الجهاز:* ${acc}
+` +
+                   `📥 *تاريخ الاستلام:* ${rd}
+` +
+                   `📤 *تاريخ التسليم المتوقع:* ${dd}
+` +
+                   `💰 *تكلفة الصيانة:* *${cost}*
+
+` +
+                   `سنترال محمد الجنبيهي يرحب بكم دائماً ✨`;
+        } else {
+            return `الأستاذ/ ${name}
+حالة الجهاز: ${st}
+العطل: ${f}
+الملحقات: ${acc}
+الاستلام: ${rd}
+التسليم: ${dd}
+التكلفة: ${cost}
+سنترال محمد الجنبيهي`;
+        }
+    }
+
+    function sendWA(id) {
+        const d = clientDevices.find(dev => dev.id === id);
+        if (!d || !d.phone) return alert("لا يوجد رقم هاتف مسجل");
+        const msg = buildMsg(d, true);
+        const p = d.phone.startsWith('0') ? d.phone.substring(1) : d.phone;
+        window.open(`https://wa.me/20${p}?text=${encodeURIComponent(msg)}`);
+    }
+
+    function sendSMS(id) {
+        const d = clientDevices.find(dev => dev.id === id);
+        if (!d || !d.phone) return alert("لا يوجد رقم هاتف مسجل");
+        const msg = buildMsg(d, false);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        window.location.href = `sms:${d.phone}${isIOS ? '&' : '?'}body=${encodeURIComponent(msg)}`;
+    }
+
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('hidden', !show); }
+    function escapeHtml(s) { return s ? String(s).replace(/[&<>'"]/g, t => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]||t)) : ''; }
+</script>
+</body>
+</html>
