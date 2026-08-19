@@ -113,6 +113,9 @@
             <a href="devices.html" class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-md flex items-center gap-2">
                 <i class="fas fa-screwdriver-wrench"></i> الأجهزة
             </a>
+            <a href="inventory.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
+                <i class="fas fa-boxes-stacked"></i> المخزن
+            </a>
             <a href="clients.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
                 <i class="fas fa-users"></i> العملاء
             </a>
@@ -180,6 +183,9 @@
     <a href="devices.html" class="flex flex-col items-center gap-1 text-[10px] text-indigo-400 font-bold">
         <i class="fas fa-screwdriver-wrench text-base"></i> الأجهزة
     </a>
+    <a href="inventory.html" class="flex flex-col items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-400">
+        <i class="fas fa-boxes-stacked text-base"></i> المخزن
+    </a>
     <a href="clients.html" class="flex flex-col items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-400">
         <i class="fas fa-users text-base"></i> العملاء
     </a>
@@ -188,17 +194,17 @@
     </a>
 </nav>
 
-<!-- MODAL: ADD DEVICE -->
+<!-- MODAL: ADD DEVICE (Integrated with Inventory & Shortages) -->
 <div id="addModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
-    <div class="glass-card bg-dark-card border border-white/10 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl">
-        <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+    <div class="glass-card bg-dark-card border border-white/10 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl max-h-[92vh] flex flex-col">
+        <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between flex-shrink-0">
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
                 <i class="fas fa-plus text-indigo-400"></i> تسجيل جهاز صيانة جديد
             </h3>
             <button onclick="closeModal('addModal')" class="text-slate-400 hover:text-white"><i class="fas fa-xmark text-lg"></i></button>
         </div>
 
-        <form id="addDeviceForm" onsubmit="handleCreateDevice(event)" class="p-6 space-y-3.5 text-xs">
+        <form id="addDeviceForm" onsubmit="handleCreateDevice(event)" class="p-6 space-y-3.5 text-xs overflow-y-auto flex-1">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <label class="block font-semibold text-slate-300 mb-1">اسم العميل *</label>
@@ -218,6 +224,19 @@
                 <div>
                     <label class="block font-semibold text-slate-300 mb-1">العطل *</label>
                     <input type="text" id="addFault" required placeholder="شاشة مكسورة، شحن..." class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                </div>
+            </div>
+
+            <!-- Smart Part Selector from Store -->
+            <div class="bg-indigo-950/30 border border-indigo-500/20 p-3 rounded-xl space-y-2">
+                <label class="block font-bold text-indigo-300"><i class="fas fa-boxes-stacked ml-1"></i> اختيار قطعة غيار من المخزن (اختياري):</label>
+                <select id="addPartSelect" onchange="handlePartSelectionChange('add')" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                    <option value="">-- بدون قطعة من المخزن --</option>
+                    <option value="__CUSTOM_SHORTAGE__">⚠️ قطعة غير متوفرة (إضافة للنواقص فوراً)</option>
+                    <!-- Injected dynamically from inventory -->
+                </select>
+                <div id="addCustomPartBox" class="hidden">
+                    <input type="text" id="addCustomPartName" placeholder="اكتب اسم القطعة الناقصة هنا..." class="w-full bg-dark-bg border border-rose-500/30 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-rose-500">
                 </div>
             </div>
 
@@ -257,23 +276,23 @@
     </div>
 </div>
 
-<!-- MODAL: EDIT DEVICE -->
+<!-- MODAL: EDIT DEVICE (Fixed & Improved) -->
 <div id="editModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
-    <div class="glass-card bg-dark-card border border-white/10 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl">
-        <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+    <div class="glass-card bg-dark-card border border-white/10 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl max-h-[92vh] flex flex-col">
+        <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between flex-shrink-0">
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                <i class="fas fa-pen-to-square text-cyan-400"></i> تعديل بيانات الجهاز
+                <i class="fas fa-pen-to-square text-cyan-400"></i> تعديل بيانات جهاز الصيانة
             </h3>
             <button onclick="closeModal('editModal')" class="text-slate-400 hover:text-white"><i class="fas fa-xmark text-lg"></i></button>
         </div>
 
-        <form id="editDeviceForm" onsubmit="handleUpdateDevice(event)" class="p-6 space-y-3.5 text-xs">
+        <form id="editDeviceForm" onsubmit="handleUpdateDevice(event)" class="p-6 space-y-3.5 text-xs overflow-y-auto flex-1">
             <input type="hidden" id="editId">
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <label class="block font-semibold text-slate-300 mb-1">اسم العميل</label>
-                    <input type="text" id="editName" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                    <input type="text" id="editName" required class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
                 </div>
                 <div>
                     <label class="block font-semibold text-slate-300 mb-1">رقم الهاتف</label>
@@ -284,11 +303,11 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <label class="block font-semibold text-slate-300 mb-1">نوع وموديل الجهاز</label>
-                    <input type="text" id="editType" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                    <input type="text" id="editType" required class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
                 </div>
                 <div>
                     <label class="block font-semibold text-slate-300 mb-1">العطل</label>
-                    <input type="text" id="editFault" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                    <input type="text" id="editFault" required class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
                 </div>
             </div>
 
@@ -308,6 +327,15 @@
                     <label class="block font-semibold text-slate-300 mb-1">التكلفة (ج.م)</label>
                     <input type="number" id="editCost" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
                 </div>
+            </div>
+
+            <!-- Edit Part Selector -->
+            <div class="bg-indigo-950/30 border border-indigo-500/20 p-3 rounded-xl space-y-2">
+                <label class="block font-bold text-indigo-300"><i class="fas fa-boxes-stacked ml-1"></i> سحب قطعة إضافية من المخزن لهذا الجهاز:</label>
+                <select id="editPartSelect" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                    <option value="">-- بدون سحب قطعة جديدة --</option>
+                    <!-- Injected dynamically -->
+                </select>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -381,11 +409,11 @@
 <script>
     const BASE_DB_URL = "https://repairshop-e2483-default-rtdb.firebaseio.com";
     let devicesState = {};
+    let inventoryState = {};
 
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('addReceiveDate').value = new Date().toISOString().split('T')[0];
         
-        // Read URL params
         const urlParams = new URLSearchParams(window.location.search);
         const statusParam = urlParams.get('status');
         const filterParam = urlParams.get('filter');
@@ -398,7 +426,7 @@
             openModal('addModal');
         }
 
-        fetchDevices(filterParam === 'today');
+        fetchInitialData(filterParam === 'today');
     });
 
     async function api(path, method = "GET", body = null) {
@@ -418,10 +446,55 @@
         }
     }
 
-    async function fetchDevices(filterToday = false) {
-        const data = await api("data/devices");
-        devicesState = data || {};
+    async function fetchInitialData(filterToday = false) {
+        const data = await api("data");
+        devicesState = (data && data.devices) ? data.devices : {};
+        inventoryState = (data && data.inventory) ? data.inventory : {};
+        
+        populateInventorySelectors();
         renderDevices(filterToday);
+    }
+
+    function populateInventorySelectors() {
+        const addSel = document.getElementById('addPartSelect');
+        const editSel = document.getElementById('editPartSelect');
+        
+        let optionsHtml = '';
+        Object.values(inventoryState).forEach(item => {
+            const qty = Number(item.qty) || 0;
+            const label = `${item.name} (المتوفر: ${qty} قطعة) - ${item.sellingPrice || 0} ج.م`;
+            optionsHtml += `<option value="${item.id}" ${qty <= 0 ? 'disabled' : ''}>${escapeHtml(label)}</option>`;
+        });
+
+        addSel.innerHTML = `
+            <option value="">-- بدون قطعة من المخزن --</option>
+            <option value="__CUSTOM_SHORTAGE__">⚠️ قطعة غير متوفرة (إضافة للنواقص فوراً)</option>
+            ${optionsHtml}
+        `;
+
+        editSel.innerHTML = `
+            <option value="">-- بدون سحب قطعة جديدة --</option>
+            ${optionsHtml}
+        `;
+    }
+
+    function handlePartSelectionChange(type) {
+        if (type === 'add') {
+            const val = document.getElementById('addPartSelect').value;
+            const box = document.getElementById('addCustomPartBox');
+            if (val === '__CUSTOM_SHORTAGE__') {
+                box.classList.remove('hidden');
+            } else {
+                box.classList.add('hidden');
+                // Auto fill cost if a part is chosen
+                if (val && inventoryState[val]) {
+                    const price = inventoryState[val].sellingPrice || 0;
+                    if (price > 0 && !document.getElementById('addCost').value) {
+                        document.getElementById('addCost').value = price;
+                    }
+                }
+            }
+        }
     }
 
     function renderDevices(filterToday = false) {
@@ -435,7 +508,6 @@
                 <div class="glass-card rounded-2xl p-4 flex flex-col justify-between glass-card-hover device-card-item" data-status="${d.status}" data-search="${(d.name + ' ' + d.phone + ' ' + d.type + ' ' + d.fault).toLowerCase()}">
                     <div>
                         <div class="flex justify-between items-start mb-2">
-                            <!-- Click opens client profile -->
                             <a href="client-details.html?name=${encodeURIComponent(d.name)}" class="group">
                                 <h4 class="font-extrabold text-sm text-slate-100 group-hover:text-indigo-400 transition flex items-center gap-1.5">
                                     <i class="fas fa-user-circle text-indigo-400"></i> ${escapeHtml(d.name)}
@@ -534,12 +606,33 @@
 
         const next = flow[d.status] || 'جاهز للصيانة';
         await api(`data/devices/${id}`, "PATCH", { status: next });
-        fetchDevices();
+        fetchInitialData();
     }
 
     async function handleCreateDevice(e) {
         e.preventDefault();
         const id = "ID" + Date.now();
+        const partChoice = document.getElementById('addPartSelect').value;
+        let finalStatus = 'جاهز للصيانة';
+
+        // 1. Handle stock deduction or shortage
+        if (partChoice === '__CUSTOM_SHORTAGE__') {
+            const customName = document.getElementById('addCustomPartName').value.trim() || 'قطعة مطلوبة';
+            const pId = "PART" + Date.now();
+            await api(`data/parts/${pId}`, "PUT", {
+                id: pId,
+                deviceId: id,
+                name: customName,
+                devInfo: `${document.getElementById('addName').value} - ${document.getElementById('addType').value}`
+            });
+            finalStatus = 'قطع غير متوفرة';
+        } else if (partChoice && inventoryState[partChoice]) {
+            // Deduct 1 from inventory
+            const currentQty = Number(inventoryState[partChoice].qty) || 0;
+            const newQty = Math.max(0, currentQty - 1);
+            await api(`data/inventory/${partChoice}`, "PATCH", { qty: newQty });
+        }
+
         const payload = {
             id,
             name: document.getElementById('addName').value,
@@ -551,13 +644,14 @@
             receiveDate: document.getElementById('addReceiveDate').value,
             deliveryDate: document.getElementById('addDeliveryDate').value,
             notes: document.getElementById('addNotes').value,
-            status: 'جاهز للصيانة'
+            status: finalStatus
         };
 
         await api(`data/devices/${id}`, "PUT", payload);
         closeModal('addModal');
         document.getElementById('addDeviceForm').reset();
-        fetchDevices();
+        document.getElementById('addCustomPartBox').classList.add('hidden');
+        fetchInitialData();
     }
 
     function openEditModal(id) {
@@ -575,6 +669,7 @@
         document.getElementById('editDeliveryDate').value = d.deliveryDate || '';
         document.getElementById('editAccessories').value = d.accessories || '';
         document.getElementById('editNotes').value = d.notes || '';
+        document.getElementById('editPartSelect').value = '';
 
         openModal('editModal');
     }
@@ -583,9 +678,18 @@
         e.preventDefault();
         const id = document.getElementById('editId').value;
         const status = document.getElementById('editStatus').value;
+        const chosenPartId = document.getElementById('editPartSelect').value;
 
+        // If a part is selected during edit, deduct 1 from inventory
+        if (chosenPartId && inventoryState[chosenPartId]) {
+            const currentQty = Number(inventoryState[chosenPartId].qty) || 0;
+            const newQty = Math.max(0, currentQty - 1);
+            await api(`data/inventory/${chosenPartId}`, "PATCH", { qty: newQty });
+        }
+
+        // If status changed to missing parts
         if (status === "قطع غير متوفرة") {
-            const partName = prompt("ما هي القطعة المطلوبة لصيانة هذا الجهاز؟");
+            const partName = prompt("ما هي القطعة الناقصة لهذا الجهاز؟");
             if (partName) {
                 const pId = "PART" + Date.now();
                 const devData = devicesState[id];
@@ -610,13 +714,13 @@
 
         await api(`data/devices/${id}`, "PATCH", payload);
         closeModal('editModal');
-        fetchDevices();
+        fetchInitialData();
     }
 
     async function deleteDevice(id) {
-        if (confirm("هل أنت متأكد من حذف هذا الجهاز؟")) {
+        if (confirm("هل أنت متأكد من حذف هذا الجهاز نهائياً؟")) {
             await api(`data/devices/${id}`, "DELETE");
-            fetchDevices();
+            fetchInitialData();
         }
     }
 

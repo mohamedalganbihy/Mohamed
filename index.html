@@ -103,6 +103,9 @@
             <a href="devices.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
                 <i class="fas fa-screwdriver-wrench"></i> الأجهزة
             </a>
+            <a href="inventory.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
+                <i class="fas fa-boxes-stacked"></i> المخزن
+            </a>
             <a href="clients.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
                 <i class="fas fa-users"></i> العملاء
             </a>
@@ -205,14 +208,24 @@
     </div>
 
     <!-- Quick Shortcuts Grid -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
         <a href="devices.html" class="glass-card glass-card-hover p-4 rounded-2xl flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-base">
                 <i class="fas fa-list-check"></i>
             </div>
             <div>
-                <b class="text-xs text-white block">جدول الأجهزة</b>
-                <span class="text-[10px] text-slate-400">إدارة وتحديث الكروت</span>
+                <b class="text-xs text-white block">الأجهزة</b>
+                <span class="text-[10px] text-slate-400">إدارة الكروت</span>
+            </div>
+        </a>
+
+        <a href="inventory.html" class="glass-card glass-card-hover p-4 rounded-2xl flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center text-base">
+                <i class="fas fa-boxes-stacked"></i>
+            </div>
+            <div>
+                <b class="text-xs text-white block">مخزن القطع</b>
+                <span class="text-[10px] text-slate-400">جرد وتوفير</span>
             </div>
         </a>
 
@@ -222,17 +235,17 @@
             </div>
             <div>
                 <b class="text-xs text-white block">دليل العملاء</b>
-                <span class="text-[10px] text-slate-400">سجل وحسابات العملاء</span>
+                <span class="text-[10px] text-slate-400">سجل وحسابات</span>
             </div>
         </a>
 
-        <a href="parts.html" class="glass-card glass-card-hover p-4 rounded-2xl flex items-center gap-3 col-span-2 sm:col-span-1">
+        <a href="parts.html" class="glass-card glass-card-hover p-4 rounded-2xl flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-base">
-                <i class="fas fa-boxes-stacked"></i>
+                <i class="fas fa-cart-shopping"></i>
             </div>
             <div>
-                <b class="text-xs text-white block">النواقص وقطع الغيار</b>
-                <span class="text-[10px] text-slate-400">تتبع القطع المطلوبة</span>
+                <b class="text-xs text-white block">النواقص</b>
+                <span class="text-[10px] text-slate-400">القطع المطلوبة</span>
             </div>
         </a>
     </div>
@@ -246,6 +259,9 @@
     </a>
     <a href="devices.html" class="flex flex-col items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-400">
         <i class="fas fa-screwdriver-wrench text-base"></i> الأجهزة
+    </a>
+    <a href="inventory.html" class="flex flex-col items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-400">
+        <i class="fas fa-boxes-stacked text-base"></i> المخزن
     </a>
     <a href="clients.html" class="flex flex-col items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-400">
         <i class="fas fa-users text-base"></i> العملاء
