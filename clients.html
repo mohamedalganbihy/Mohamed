@@ -103,6 +103,9 @@
             <a href="devices.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
                 <i class="fas fa-screwdriver-wrench"></i> الأجهزة
             </a>
+            <a href="inventory.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
+                <i class="fas fa-boxes-stacked"></i> المخزن
+            </a>
             <a href="clients.html" class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-md flex items-center gap-2">
                 <i class="fas fa-users"></i> العملاء
             </a>
@@ -154,6 +157,9 @@
     <a href="devices.html" class="flex flex-col items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-400">
         <i class="fas fa-screwdriver-wrench text-base"></i> الأجهزة
     </a>
+    <a href="inventory.html" class="flex flex-col items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-400">
+        <i class="fas fa-boxes-stacked text-base"></i> المخزن
+    </a>
     <a href="clients.html" class="flex flex-col items-center gap-1 text-[10px] text-indigo-400 font-bold">
         <i class="fas fa-users text-base"></i> العملاء
     </a>
@@ -177,16 +183,23 @@
             const data = await res.json();
             
             clientsMap = {};
-            Object.values(data || {}).forEach(d => {
+            const deviceList = Object.values(data || {});
+
+            // Process devices in order to track latest registration timestamp
+            deviceList.forEach(d => {
                 const name = (d.name || 'عميل').trim();
+                const deviceTime = d.id ? parseInt(d.id.replace('ID', '')) || 0 : 0;
+
                 if (!clientsMap[name]) {
                     clientsMap[name] = {
                         name,
                         phone: d.phone || '',
-                        devices: []
+                        devices: [],
+                        latestTime: deviceTime
                     };
                 }
                 if (d.phone && !clientsMap[name].phone) clientsMap[name].phone = d.phone;
+                if (deviceTime > clientsMap[name].latestTime) clientsMap[name].latestTime = deviceTime;
                 clientsMap[name].devices.push(d);
             });
 
@@ -200,7 +213,9 @@
     function renderClients() {
         const cont = document.getElementById('clientsContainer');
         cont.innerHTML = '';
-        const list = Object.values(clientsMap);
+        
+        // Sort clients: NEWEST FIRST (الأحدث فوق والقديم في الأسفل)
+        const list = Object.values(clientsMap).sort((a, b) => (b.latestTime || 0) - (a.latestTime || 0));
 
         if (list.length === 0) {
             document.getElementById('emptyState').classList.remove('hidden');

@@ -141,7 +141,7 @@
     <div class="glass-card p-3.5 rounded-2xl flex flex-col md:flex-row items-center gap-3">
         <div class="relative w-full flex-1">
             <i class="fas fa-search absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-            <input type="text" id="searchInput" onkeyup="filterDevices()" placeholder="بحث سريع بالاسم، رقم الهاتف، نوع الجهاز، العطل..." 
+            <input type="text" id="searchInput" onkeyup="filterDevices()" placeholder="بحث سريع بالاسم، رقم الهاتف، السيريال IMEI، نوع الجهاز، العطل..." 
                 class="w-full bg-dark-bg/80 border border-white/10 rounded-xl pr-9 pl-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
         </div>
 
@@ -194,7 +194,7 @@
     </a>
 </nav>
 
-<!-- MODAL: ADD DEVICE (Integrated with Inventory & Shortages) -->
+<!-- MODAL: ADD DEVICE (Integrated with Inventory & Shortages & Serial) -->
 <div id="addModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
     <div class="glass-card bg-dark-card border border-white/10 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl max-h-[92vh] flex flex-col">
         <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between flex-shrink-0">
@@ -222,9 +222,14 @@
                     <input type="text" id="addType" required placeholder="مثال: ردمي نوت 11..." class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
                 </div>
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1">العطل *</label>
-                    <input type="text" id="addFault" required placeholder="شاشة مكسورة، شحن..." class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                    <label class="block font-semibold text-slate-300 mb-1">سيريال الجهاز / IMEI (اختياري)</label>
+                    <input type="text" id="addImei" placeholder="الرقم التسلسلي أو IMEI..." class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500 text-left" dir="ltr">
                 </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">العطل المشتكى منه *</label>
+                <input type="text" id="addFault" required placeholder="شاشة مكسورة، فاصل باور، شحن..." class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
             </div>
 
             <!-- Smart Part Selector from Store -->
@@ -233,7 +238,6 @@
                 <select id="addPartSelect" onchange="handlePartSelectionChange('add')" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
                     <option value="">-- بدون قطعة من المخزن --</option>
                     <option value="__CUSTOM_SHORTAGE__">⚠️ قطعة غير متوفرة (إضافة للنواقص فوراً)</option>
-                    <!-- Injected dynamically from inventory -->
                 </select>
                 <div id="addCustomPartBox" class="hidden">
                     <input type="text" id="addCustomPartName" placeholder="اكتب اسم القطعة الناقصة هنا..." class="w-full bg-dark-bg border border-rose-500/30 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-rose-500">
@@ -264,7 +268,7 @@
 
             <div>
                 <label class="block font-semibold text-slate-300 mb-1">ملاحظات فنية / رمز القفل</label>
-                <textarea id="addNotes" rows="2" placeholder="الرمز: 1234، ملحوظة..." class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500"></textarea>
+                <textarea id="addNotes" rows="2" placeholder="الرمز: 1234، ملحوظة فنية..." class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500"></textarea>
             </div>
 
             <div class="pt-2">
@@ -276,7 +280,7 @@
     </div>
 </div>
 
-<!-- MODAL: EDIT DEVICE (Fixed & Improved) -->
+<!-- MODAL: EDIT DEVICE (Fixed & With Serial) -->
 <div id="editModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
     <div class="glass-card bg-dark-card border border-white/10 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl max-h-[92vh] flex flex-col">
         <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between flex-shrink-0">
@@ -306,9 +310,14 @@
                     <input type="text" id="editType" required class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
                 </div>
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1">العطل</label>
-                    <input type="text" id="editFault" required class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                    <label class="block font-semibold text-slate-300 mb-1">سيريال الجهاز / IMEI</label>
+                    <input type="text" id="editImei" placeholder="الرقم التسلسلي أو IMEI..." class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500 text-left" dir="ltr">
                 </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">العطل المشتكى منه</label>
+                <input type="text" id="editFault" required class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -334,7 +343,6 @@
                 <label class="block font-bold text-indigo-300"><i class="fas fa-boxes-stacked ml-1"></i> سحب قطعة إضافية من المخزن لهذا الجهاز:</label>
                 <select id="editPartSelect" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
                     <option value="">-- بدون سحب قطعة جديدة --</option>
-                    <!-- Injected dynamically -->
                 </select>
             </div>
 
@@ -384,6 +392,7 @@
             <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">العميل:</span><span id="rcptName" class="font-bold"></span></div>
             <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">الهاتف:</span><span id="rcptPhone" class="font-bold" dir="ltr"></span></div>
             <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">الجهاز:</span><span id="rcptType" class="font-bold"></span></div>
+            <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">السيريال / IMEI:</span><span id="rcptImei" class="font-mono"></span></div>
             <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">العطل:</span><span id="rcptFault" class="font-semibold text-rose-600"></span></div>
             <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">الملحقات:</span><span id="rcptAccessories"></span></div>
             <div class="flex justify-between py-1 border-b border-slate-100"><span class="text-slate-500">الاستلام:</span><span id="rcptReceiveDate"></span></div>
@@ -486,7 +495,6 @@
                 box.classList.remove('hidden');
             } else {
                 box.classList.add('hidden');
-                // Auto fill cost if a part is chosen
                 if (val && inventoryState[val]) {
                     const price = inventoryState[val].sellingPrice || 0;
                     if (price > 0 && !document.getElementById('addCost').value) {
@@ -500,12 +508,13 @@
     function renderDevices(filterToday = false) {
         const cont = document.getElementById('devicesContainer');
         cont.innerHTML = '';
+        // Sort newest devices on top
         const devs = Object.values(devicesState).reverse();
         const todayStr = new Date().toISOString().split('T')[0];
 
         devs.forEach(d => {
             cont.innerHTML += `
-                <div class="glass-card rounded-2xl p-4 flex flex-col justify-between glass-card-hover device-card-item" data-status="${d.status}" data-search="${(d.name + ' ' + d.phone + ' ' + d.type + ' ' + d.fault).toLowerCase()}">
+                <div class="glass-card rounded-2xl p-4 flex flex-col justify-between glass-card-hover device-card-item" data-status="${d.status}" data-search="${(d.name + ' ' + d.phone + ' ' + (d.imei || '') + ' ' + d.type + ' ' + d.fault).toLowerCase()}">
                     <div>
                         <div class="flex justify-between items-start mb-2">
                             <a href="client-details.html?name=${encodeURIComponent(d.name)}" class="group">
@@ -524,6 +533,7 @@
 
                         <div class="flex flex-wrap gap-1.5 mb-2 text-[11px] text-slate-400">
                             ${d.phone ? `<span class="bg-white/5 px-2 py-0.5 rounded-md" dir="ltr"><i class="fas fa-phone text-emerald-400 text-[10px] ml-1"></i>${d.phone}</span>` : ''}
+                            ${d.imei ? `<span class="bg-indigo-950/40 border border-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-md font-mono" dir="ltr"><i class="fas fa-barcode ml-1 text-[10px]"></i>${escapeHtml(d.imei)}</span>` : ''}
                             ${d.accessories ? `<span class="bg-white/5 px-2 py-0.5 rounded-md"><i class="fas fa-plug text-cyan-400 text-[10px] ml-1"></i>${escapeHtml(d.accessories)}</span>` : ''}
                         </div>
 
@@ -614,8 +624,8 @@
         const id = "ID" + Date.now();
         const partChoice = document.getElementById('addPartSelect').value;
         let finalStatus = 'جاهز للصيانة';
+        let usedPartId = '';
 
-        // 1. Handle stock deduction or shortage
         if (partChoice === '__CUSTOM_SHORTAGE__') {
             const customName = document.getElementById('addCustomPartName').value.trim() || 'قطعة مطلوبة';
             const pId = "PART" + Date.now();
@@ -627,7 +637,7 @@
             });
             finalStatus = 'قطع غير متوفرة';
         } else if (partChoice && inventoryState[partChoice]) {
-            // Deduct 1 from inventory
+            usedPartId = partChoice;
             const currentQty = Number(inventoryState[partChoice].qty) || 0;
             const newQty = Math.max(0, currentQty - 1);
             await api(`data/inventory/${partChoice}`, "PATCH", { qty: newQty });
@@ -635,16 +645,18 @@
 
         const payload = {
             id,
-            name: document.getElementById('addName').value,
-            phone: document.getElementById('addPhone').value,
-            type: document.getElementById('addType').value,
-            fault: document.getElementById('addFault').value,
-            accessories: document.getElementById('addAccessories').value,
+            name: document.getElementById('addName').value.trim(),
+            phone: document.getElementById('addPhone').value.trim(),
+            type: document.getElementById('addType').value.trim(),
+            imei: document.getElementById('addImei').value.trim(),
+            fault: document.getElementById('addFault').value.trim(),
+            accessories: document.getElementById('addAccessories').value.trim(),
             cost: document.getElementById('addCost').value,
             receiveDate: document.getElementById('addReceiveDate').value,
             deliveryDate: document.getElementById('addDeliveryDate').value,
-            notes: document.getElementById('addNotes').value,
-            status: finalStatus
+            notes: document.getElementById('addNotes').value.trim(),
+            status: finalStatus,
+            usedPartId: usedPartId
         };
 
         await api(`data/devices/${id}`, "PUT", payload);
@@ -662,6 +674,7 @@
         document.getElementById('editName').value = d.name || '';
         document.getElementById('editPhone').value = d.phone || '';
         document.getElementById('editType').value = d.type || '';
+        document.getElementById('editImei').value = d.imei || '';
         document.getElementById('editFault').value = d.fault || '';
         document.getElementById('editStatus').value = d.status || 'جاهز للصيانة';
         document.getElementById('editCost').value = d.cost || 0;
@@ -680,14 +693,12 @@
         const status = document.getElementById('editStatus').value;
         const chosenPartId = document.getElementById('editPartSelect').value;
 
-        // If a part is selected during edit, deduct 1 from inventory
         if (chosenPartId && inventoryState[chosenPartId]) {
             const currentQty = Number(inventoryState[chosenPartId].qty) || 0;
             const newQty = Math.max(0, currentQty - 1);
             await api(`data/inventory/${chosenPartId}`, "PATCH", { qty: newQty });
         }
 
-        // If status changed to missing parts
         if (status === "قطع غير متوفرة") {
             const partName = prompt("ما هي القطعة الناقصة لهذا الجهاز؟");
             if (partName) {
@@ -700,17 +711,22 @@
         }
 
         const payload = {
-            name: document.getElementById('editName').value,
-            phone: document.getElementById('editPhone').value,
-            type: document.getElementById('editType').value,
-            fault: document.getElementById('editFault').value,
+            name: document.getElementById('editName').value.trim(),
+            phone: document.getElementById('editPhone').value.trim(),
+            type: document.getElementById('editType').value.trim(),
+            imei: document.getElementById('editImei').value.trim(),
+            fault: document.getElementById('editFault').value.trim(),
             status,
             cost: document.getElementById('editCost').value,
             receiveDate: document.getElementById('editReceiveDate').value,
             deliveryDate: document.getElementById('editDeliveryDate').value,
-            accessories: document.getElementById('editAccessories').value,
-            notes: document.getElementById('editNotes').value
+            accessories: document.getElementById('editAccessories').value.trim(),
+            notes: document.getElementById('editNotes').value.trim()
         };
+
+        if (chosenPartId) {
+            payload.usedPartId = chosenPartId;
+        }
 
         await api(`data/devices/${id}`, "PATCH", payload);
         closeModal('editModal');
@@ -731,6 +747,7 @@
         document.getElementById('rcptName').innerText = d.name || '-';
         document.getElementById('rcptPhone').innerText = d.phone || '-';
         document.getElementById('rcptType').innerText = d.type || '-';
+        document.getElementById('rcptImei').innerText = d.imei || '-';
         document.getElementById('rcptFault').innerText = d.fault || '-';
         document.getElementById('rcptAccessories').innerText = d.accessories || 'بدون';
         document.getElementById('rcptReceiveDate').innerText = d.receiveDate || '-';
@@ -740,53 +757,43 @@
         const qb = document.getElementById('qrcodeBox');
         qb.innerHTML = '';
         new QRCode(qb, {
-            text: `سنترال محمد الجنبيهي
-العميل: ${d.name}
-الجهاز: ${d.type}
-العطل: ${d.fault}
-التكلفة: ${d.cost || 0} ج.م`,
+            text: `سنترال محمد الجنبيهي\nالعميل: ${d.name}\nالجهاز: ${d.type}\nالسيريال: ${d.imei || 'لا يوجد'}\nالعطل: ${d.fault}\nالتكلفة: ${d.cost || 0} ج.م`,
             width: 100, height: 100, colorDark: "#0f172a", colorLight: "#ffffff"
         });
 
         openModal('receiptModal');
     }
 
+    // Precise WhatsApp & SMS Formatter according to user exact requirements
     function buildMsg(d, isWA = true) {
         const name = d.name || 'عميلنا العزيز';
         const st = d.status || 'غير محدد';
-        const f = d.fault || 'غير محدد';
-        const acc = d.accessories || 'لا يوجد';
+        const cost = d.cost ? `${d.cost} ج.م` : 'لم تحدد بعد';
         const rd = d.receiveDate || 'غير محدد';
         const dd = d.deliveryDate || 'غير محدد';
-        const cost = d.cost ? `${d.cost} ج.م` : 'لم تحدد بعد';
+        const f = d.fault || 'غير محدد';
+        const acc = d.accessories || 'لا يوجد';
 
         if (isWA) {
-            return `*الأستاذ / ${name}* 🌸
-
-` +
-                   `📍 *حالة الجهاز:* ${st}
-` +
-                   `🔧 *العطل:* ${f}
-` +
-                   `🔌 *ملحقات الجهاز:* ${acc}
-` +
-                   `📥 *تاريخ الاستلام:* ${rd}
-` +
-                   `📤 *تاريخ التسليم المتوقع:* ${dd}
-` +
-                   `💰 *تكلفة الصيانة:* *${cost}*
-
-` +
-                   `سنترال محمد الجنبيهي يرحب بكم دائماً ✨`;
+            let msg = `*الأستاذ / ${name}* 🌸\n\n`;
+            msg += `📍 *حالة الجهاز:* ${st}\n`;
+            msg += `💰 *التكلفة:* *${cost}*\n`;
+            msg += `📥 *تاريخ الاستلام:* ${rd}\n`;
+            msg += `📤 *تاريخ التسليم المتوقع:* ${dd}\n`;
+            msg += `🔧 *العطل:* ${f}\n`;
+            msg += `🔌 *ملحقات الجهاز:* ${acc}\n\n`;
+            msg += `✨ *مع تحيات مركز سنترال محمد الجنبيهي للصيانة، نسعد دائماً بخدمتكم وتلبية طلباتكم بأفضل جودة!* 💐`;
+            return msg;
         } else {
-            return `الأستاذ/ ${name}
-حالة الجهاز: ${st}
-العطل: ${f}
-الملحقات: ${acc}
-الاستلام: ${rd}
-التسليم: ${dd}
-التكلفة: ${cost}
-سنترال محمد الجنبيهي`;
+            let msg = `الأستاذ/ ${name}\n`;
+            msg += `حالة الجهاز: ${st}\n`;
+            msg += `التكلفة: ${cost}\n`;
+            msg += `تاريخ الاستلام: ${rd}\n`;
+            msg += `تاريخ التسليم: ${dd}\n`;
+            msg += `العطل: ${f}\n`;
+            msg += `الملحقات: ${acc}\n`;
+            msg += `مع تحيات مركز سنترال محمد الجنبيهي للصيانة`;
+            return msg;
         }
     }
 
