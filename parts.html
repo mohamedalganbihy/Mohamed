@@ -103,6 +103,9 @@
             <a href="devices.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
                 <i class="fas fa-screwdriver-wrench"></i> الأجهزة
             </a>
+            <a href="inventory.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
+                <i class="fas fa-boxes-stacked"></i> المخزن
+            </a>
             <a href="clients.html" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-2">
                 <i class="fas fa-users"></i> العملاء
             </a>
@@ -110,6 +113,13 @@
                 <i class="fas fa-cart-shopping text-rose-400"></i> النواقص
             </a>
         </nav>
+
+        <div class="flex items-center gap-2">
+            <button onclick="openModal('addShortageModal')" class="bg-rose-600 hover:bg-rose-500 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-rose-600/30 transition flex items-center gap-1.5">
+                <i class="fas fa-plus"></i>
+                <span>إضافة قطعة ناقصة</span>
+            </button>
+        </div>
     </div>
 </header>
 
@@ -146,13 +156,46 @@
     <a href="devices.html" class="flex flex-col items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-400">
         <i class="fas fa-screwdriver-wrench text-base"></i> الأجهزة
     </a>
+    <a href="inventory.html" class="flex flex-col items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-400">
+        <i class="fas fa-boxes-stacked text-base"></i> المخزن
+    </a>
     <a href="clients.html" class="flex flex-col items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-400">
         <i class="fas fa-users text-base"></i> العملاء
     </a>
-    <a href="parts.html" class="flex flex-col items-center gap-1 text-[10px] text-indigo-400 font-bold">
-        <i class="fas fa-cart-shopping text-base text-rose-400"></i> النواقص
+    <a href="parts.html" class="flex flex-col items-center gap-1 text-[10px] text-rose-400 font-bold">
+        <i class="fas fa-cart-shopping text-base"></i> النواقص
     </a>
 </nav>
+
+<!-- MODAL: ADD SHORTAGE DIRECTLY -->
+<div id="addShortageModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+    <div class="glass-card bg-dark-card border border-rose-500/30 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
+        <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+            <h3 class="text-sm font-bold text-rose-400 flex items-center gap-2">
+                <i class="fas fa-cart-plus"></i> إضافة قطعة غيار ناقصة
+            </h3>
+            <button onclick="closeModal('addShortageModal')" class="text-slate-400 hover:text-white"><i class="fas fa-xmark text-lg"></i></button>
+        </div>
+
+        <form id="addShortageForm" onsubmit="handleCreateShortage(event)" class="p-6 space-y-3.5 text-xs">
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">اسم وموديل القطعة *</label>
+                <input type="text" id="shortagePartName" required placeholder="مثال: شاشة سامسونج A12 أصلية" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-rose-500">
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">خاصة بجهاز أو عميل (اختياري)</label>
+                <input type="text" id="shortageDevInfo" placeholder="مثال: جهاز أحمد محمود" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-rose-500">
+            </div>
+
+            <div class="pt-2">
+                <button type="submit" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl transition shadow-lg shadow-rose-600/30">
+                    حفظ في النواقص
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
     const BASE_DB_URL = "https://repairshop-e2483-default-rtdb.firebaseio.com";
@@ -201,27 +244,49 @@
         });
     }
 
+    async function handleCreateShortage(e) {
+        e.preventDefault();
+        const pId = "PART" + Date.now();
+        const payload = {
+            id: pId,
+            name: document.getElementById('shortagePartName').value.trim(),
+            devInfo: document.getElementById('shortageDevInfo').value.trim() || 'طلب مباشر من الإدارة',
+            deviceId: ''
+        };
+
+        showLoading(true);
+        await fetch(`${BASE_DB_URL}/data/parts/${pId}.json`, {
+            method: "PUT",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        showLoading(false);
+
+        closeModal('addShortageModal');
+        document.getElementById('addShortageForm').reset();
+        fetchParts();
+    }
+
     async function resolvePart(partId, deviceId) {
         if (confirm("هل تم توفير القطعة بنجاح وتحويل حالة الجهاز إلى 'قيد الصيانة'؟")) {
             showLoading(true);
             await fetch(`${BASE_DB_URL}/data/parts/${partId}.json`, { method: "DELETE" });
-            await fetch(`${BASE_DB_URL}/data/devices/${deviceId}.json`, {
-                method: "PATCH",
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: "قيد الصيانة" })
-            });
+            if (deviceId) {
+                await fetch(`${BASE_DB_URL}/data/devices/${deviceId}.json`, {
+                    method: "PATCH",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: "قيد الصيانة" })
+                });
+            }
             showLoading(false);
             fetchParts();
         }
     }
 
-    function showLoading(show) {
-        document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
-    }
-
-    function escapeHtml(s) {
-        return s ? String(s).replace(/[&<>'"]/g, t => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]||t)) : '';
-    }
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('hidden', !show); }
+    function escapeHtml(s) { return s ? String(s).replace(/[&<>'"]/g, t => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]||t)) : ''; }
 </script>
 </body>
 </html>

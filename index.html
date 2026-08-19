@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>سنترال محمد الجنبيهي - لوحة الإحصائيات والرئيسية</title>
+    <title>سنترال محمد الجنبيهي - لوحة الإحصائيات والأرباح الذكية</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -77,7 +77,7 @@
             <i class="fas fa-microchip text-indigo-400 animate-pulse"></i>
         </div>
     </div>
-    <p class="mt-3 text-xs font-semibold text-slate-300">جاري تحميل البيانات...</p>
+    <p class="mt-3 text-xs font-semibold text-slate-300">جاري تحميل وحساب الأرباح...</p>
 </div>
 
 <!-- Header & Navigation Bar -->
@@ -91,7 +91,7 @@
                 <h1 class="text-base sm:text-lg font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-300 bg-clip-text text-transparent">
                     سنترال محمد الجنبيهي
                 </h1>
-                <p class="text-[10px] text-slate-400">لوحة المتابعة والتحكم</p>
+                <p class="text-[10px] text-slate-400">لوحة المتابعة والأرباح الذكية</p>
             </div>
         </div>
 
@@ -115,8 +115,12 @@
             </a>
         </nav>
 
-        <!-- Direct Fast Action Button -->
+        <!-- Fast Actions (Add Device & Add Shortage Part) -->
         <div class="flex items-center gap-2">
+            <button onclick="openModal('addShortageModal')" class="bg-rose-600/20 hover:bg-rose-600 border border-rose-500/30 text-rose-300 hover:text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md" title="إضافة قطعة ناقصة مباشرة">
+                <i class="fas fa-cart-plus"></i>
+                <span class="hidden sm:inline">قطعة ناقصة</span>
+            </button>
             <a href="devices.html?action=add" class="bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-indigo-600/30 transition flex items-center gap-1.5">
                 <i class="fas fa-plus"></i>
                 <span>استلام جهاز</span>
@@ -167,30 +171,82 @@
         </a>
     </div>
 
-    <!-- Revenue & Today Due Alert Banner -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="glass-card p-5 rounded-2xl border-indigo-500/20 bg-gradient-to-br from-indigo-950/30 to-slate-900 flex items-center justify-between">
-            <div>
-                <span class="text-xs text-indigo-300 font-semibold block">إجمالي أرباح وعائدات الصيانة</span>
-                <span class="text-2xl font-black text-emerald-400 mt-1 block" id="statTotalRev">0 ج.م</span>
-                <span class="text-[10px] text-slate-400">المحسوبة من كافة الأجهزة المسجلة</span>
+    <!-- ADVANCED SMART FINANCIAL PROFIT CARD -->
+    <div class="glass-card p-6 rounded-3xl border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 via-dark-card to-slate-900 shadow-xl relative overflow-hidden">
+        <!-- Glow accent in background -->
+        <div class="absolute -left-10 -top-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg border border-emerald-500/30">
+                    <i class="fas fa-sack-dollar"></i>
+                </div>
+                <div>
+                    <h2 class="text-sm sm:text-base font-extrabold text-white">تقرير وصافي أرباح الصيانة والمخزن</h2>
+                    <span class="text-[10px] text-slate-400">حساب صافي المكسب الحقيقي (سعر البيع - تكلفة القطع)</span>
+                </div>
             </div>
-            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl">
-                <i class="fas fa-wallet"></i>
-            </div>
+
+            <!-- Eye Privacy Toggle Button -->
+            <button onclick="toggleProfitPrivacy()" id="profitEyeBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 text-xs font-bold transition border border-white/10">
+                <i id="profitEyeIcon" class="fas fa-eye"></i>
+                <span id="profitEyeText" class="hidden sm:inline">إظهار الأرباح</span>
+            </button>
         </div>
 
-        <a href="devices.html?filter=today" class="glass-card glass-card-hover p-5 rounded-2xl border-rose-500/20 bg-gradient-to-br from-rose-950/20 to-slate-900 flex items-center justify-between block">
-            <div>
-                <span class="text-xs text-rose-300 font-semibold block">مواعيد تسليمات اليوم</span>
-                <span class="text-2xl font-black text-rose-400 mt-1 block" id="statTodayDue">0</span>
-                <span class="text-[10px] text-slate-400">اضغط لعرض الأجهزة المطلوب تسليمها اليوم</span>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <!-- 1. Today's Net Profit -->
+            <div class="bg-dark-bg/60 border border-white/5 p-4 rounded-2xl">
+                <span class="text-[11px] text-cyan-400 font-bold block flex items-center gap-1.5">
+                    <i class="fas fa-calendar-day text-[10px]"></i> صافي أرباح اليوم
+                </span>
+                <div class="mt-2 text-xl sm:text-2xl font-black text-cyan-400 profit-val" data-real="0" id="statTodayNetProfit">
+                    ****
+                </div>
+                <span class="text-[10px] text-slate-400">صافي ربح الصيانة المسلّمة اليوم</span>
             </div>
-            <div class="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-xl">
+
+            <!-- 2. Current Month's Net Profit (Maksab Only) -->
+            <div class="bg-dark-bg/60 border border-emerald-500/20 p-4 rounded-2xl relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] text-emerald-400 font-bold block flex items-center gap-1.5">
+                        <i class="fas fa-chart-line text-[10px]"></i> صافي أرباح الشهر الجاري
+                    </span>
+                    <span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded-md font-bold" id="currentMonthName">هذا الشهر</span>
+                </div>
+                <div class="mt-2 text-xl sm:text-2xl font-black text-emerald-400 profit-val" data-real="0" id="statMonthNetProfit">
+                    ****
+                </div>
+                <span class="text-[10px] text-slate-400">المكسب الصافي الحقيقي بعد خصم تكلفة القطع</span>
+            </div>
+
+            <!-- 3. Current Month's Gross Revenue (Total including full part cost) -->
+            <div class="bg-dark-bg/60 border border-white/5 p-4 rounded-2xl">
+                <span class="text-[11px] text-indigo-300 font-bold block flex items-center gap-1.5">
+                    <i class="fas fa-coins text-[10px]"></i> إجمالي إيراد الشهر (بالقطع)
+                </span>
+                <div class="mt-2 text-xl sm:text-2xl font-black text-indigo-200 profit-val" data-real="0" id="statMonthGrossRev">
+                    ****
+                </div>
+                <span class="text-[10px] text-slate-400">إجمالي المقبوضات الكلية بسعر القطع</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deliveries Alert Banner -->
+    <a href="devices.html?filter=today" class="glass-card glass-card-hover p-4 rounded-2xl border-rose-500/20 bg-gradient-to-br from-rose-950/20 to-slate-900 flex items-center justify-between block">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-lg">
                 <i class="fas fa-bell animate-pulse"></i>
             </div>
-        </a>
-    </div>
+            <div>
+                <span class="text-xs text-rose-300 font-semibold block">مواعيد تسليمات أجهزة اليوم</span>
+                <span class="text-xs text-slate-400">اضغط لعرض كافة الأجهزة المطلوب تسليمها لأصحابها اليوم</span>
+            </div>
+        </div>
+        <span class="text-xl font-black text-rose-400 bg-rose-500/20 border border-rose-500/30 px-3 py-1 rounded-xl" id="statTodayDue">0</span>
+    </a>
 
     <!-- Recent Devices Feed -->
     <div class="glass-card p-5 rounded-2xl space-y-4">
@@ -271,8 +327,39 @@
     </a>
 </nav>
 
+<!-- MODAL: ADD SHORTAGE DIRECTLY (قطعة ناقصة) -->
+<div id="addShortageModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+    <div class="glass-card bg-dark-card border border-rose-500/30 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
+        <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+            <h3 class="text-sm font-bold text-rose-400 flex items-center gap-2">
+                <i class="fas fa-cart-plus"></i> إضافة قطعة غيار ناقصة للقائمة
+            </h3>
+            <button onclick="closeModal('addShortageModal')" class="text-slate-400 hover:text-white"><i class="fas fa-xmark text-lg"></i></button>
+        </div>
+
+        <form id="addShortageForm" onsubmit="handleCreateShortage(event)" class="p-6 space-y-3.5 text-xs">
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">اسم وموديل القطعة المطلوبة *</label>
+                <input type="text" id="shortagePartName" required placeholder="مثال: شاشة سامسونج A12 أصلية / فلاتة ردمي 9" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-rose-500">
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">خاصة بجهاز أو عميل (اختياري)</label>
+                <input type="text" id="shortageDevInfo" placeholder="مثال: جهاز أحمد محمود أو بدون" class="w-full bg-dark-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-rose-500">
+            </div>
+
+            <div class="pt-2">
+                <button type="submit" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl transition shadow-lg shadow-rose-600/30">
+                    إدراج في قائمة النواقص
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     const BASE_DB_URL = "https://repairshop-e2483-default-rtdb.firebaseio.com";
+    let isProfitRevealed = false;
 
     document.addEventListener('DOMContentLoaded', fetchDashboardData);
 
@@ -286,24 +373,61 @@
             
             const devices = (data && data.devices) ? Object.values(data.devices) : [];
             const parts = (data && data.parts) ? Object.values(data.parts) : [];
-            const todayStr = new Date().toISOString().split('T')[0];
+            const inventory = (data && data.inventory) ? data.inventory : {};
+            
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+            const currentYearMonth = todayStr.substring(0, 7); // e.g. "2026-08"
 
-            // Counts
+            // 1. Device Counts
             document.getElementById('statReceive').innerText = devices.filter(d => d.status === 'جاهز للصيانة').length;
             document.getElementById('statActive').innerText = devices.filter(d => d.status === 'قيد الصيانة').length;
             document.getElementById('statReady').innerText = devices.filter(d => d.status === 'انتهى (جاهز)').length;
             document.getElementById('statDelivered').innerText = devices.filter(d => d.status === 'تم التسليم').length;
 
-            // Total revenue
-            const totalRev = devices.reduce((sum, d) => sum + (Number(d.cost) || 0), 0);
-            document.getElementById('statTotalRev').innerText = `${totalRev.toLocaleString('ar-EG')} ج.م`;
+            // 2. Shortages badge
+            document.getElementById('badgePartsCount').innerText = parts.length;
 
-            // Today Deliveries
+            // 3. Today Due Deliveries
             const todayDue = devices.filter(d => d.deliveryDate === todayStr && d.status !== 'تم التسليم').length;
             document.getElementById('statTodayDue').innerText = todayDue;
 
-            // Parts
-            document.getElementById('badgePartsCount').innerText = parts.length;
+            // 4. Financial Calculations (Today Profit, Month Profit, Month Gross Revenue)
+            let todayNetProfit = 0;
+            let monthNetProfit = 0;
+            let monthGrossRevenue = 0;
+
+            devices.forEach(d => {
+                const cost = Number(d.cost) || 0;
+                const recDate = d.receiveDate || '';
+                const delDate = d.deliveryDate || '';
+                
+                // If a part from inventory was used, we calculate: Net Profit = Cost - PartCostPrice
+                let partCostPrice = 0;
+                if (d.usedPartId && inventory[d.usedPartId]) {
+                    partCostPrice = Number(inventory[d.usedPartId].costPrice) || 0;
+                }
+                const netProfitForDevice = Math.max(0, cost - partCostPrice);
+
+                // Month calculation: devices delivered or received in current month
+                if (recDate.startsWith(currentYearMonth) || delDate.startsWith(currentYearMonth)) {
+                    monthGrossRevenue += cost;
+                    monthNetProfit += netProfitForDevice;
+                }
+
+                // Today calculation
+                if (delDate === todayStr || recDate === todayStr) {
+                    todayNetProfit += netProfitForDevice;
+                }
+            });
+
+            // Store real formatted numbers inside data-real attributes
+            document.getElementById('statTodayNetProfit').setAttribute('data-real', `${todayNetProfit.toLocaleString('ar-EG')} ج.م`);
+            document.getElementById('statMonthNetProfit').setAttribute('data-real', `${monthNetProfit.toLocaleString('ar-EG')} ج.م`);
+            document.getElementById('statMonthGrossRev').setAttribute('data-real', `${monthGrossRevenue.toLocaleString('ar-EG')} ج.م`);
+
+            // Apply current privacy mask
+            updateProfitDisplay();
 
             // Recent devices list
             const recentCont = document.getElementById('recentDevicesList');
@@ -333,13 +457,60 @@
         }
     }
 
-    function showLoading(show) {
-        document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
+    // Toggle Profit Privacy Mask (Stars vs Real Figures)
+    function toggleProfitPrivacy() {
+        isProfitRevealed = !isProfitRevealed;
+        updateProfitDisplay();
     }
 
-    function escapeHtml(s) {
-        return s ? String(s).replace(/[&<>'"]/g, t => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]||t)) : '';
+    function updateProfitDisplay() {
+        const eyeIcon = document.getElementById('profitEyeIcon');
+        const eyeText = document.getElementById('profitEyeText');
+        const elements = document.querySelectorAll('.profit-val');
+
+        if (isProfitRevealed) {
+            eyeIcon.className = "fas fa-eye-slash text-amber-400";
+            eyeText.innerText = "إخفاء الأرباح";
+            elements.forEach(el => {
+                el.innerText = el.getAttribute('data-real') || '0 ج.م';
+            });
+        } else {
+            eyeIcon.className = "fas fa-eye text-slate-200";
+            eyeText.innerText = "إظهار الأرباح";
+            elements.forEach(el => {
+                el.innerText = '****';
+            });
+        }
     }
+
+    // Create shortage directly
+    async function handleCreateShortage(e) {
+        e.preventDefault();
+        const pId = "PART" + Date.now();
+        const payload = {
+            id: pId,
+            name: document.getElementById('shortagePartName').value.trim(),
+            devInfo: document.getElementById('shortageDevInfo').value.trim() || 'طلب مباشر من الإدارة',
+            deviceId: ''
+        };
+
+        showLoading(true);
+        await fetch(`${BASE_DB_URL}/data/parts/${pId}.json`, {
+            method: "PUT",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        showLoading(false);
+
+        closeModal('addShortageModal');
+        document.getElementById('addShortageForm').reset();
+        fetchDashboardData();
+    }
+
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('hidden', !show); }
+    function escapeHtml(s) { return s ? String(s).replace(/[&<>'"]/g, t => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]||t)) : ''; }
 </script>
 </body>
 </html>
