@@ -89,7 +89,7 @@
                 <h1 class="text-base sm:text-lg font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-300 bg-clip-text text-transparent">
                     سنترال محمد الجنبيهي
                 </h1>
-                <p class="text-[10px] text-slate-400">حسابات ومديونيات العملاء النشطة</p>
+                <p class="text-[10px] text-slate-400">حسابات ومديونيات الأجهزة المسلمة</p>
             </div>
         </div>
 
@@ -182,7 +182,7 @@
     <div id="emptyState" class="hidden glass-card p-12 rounded-3xl text-center">
         <i class="fas fa-circle-check text-emerald-400 text-4xl mb-3"></i>
         <h4 class="text-sm font-bold text-white">لا توجد أي مديونيات أو حسابات معلقة حالياً!</h4>
-        <p class="text-xs text-slate-400 mt-1">جميع حسابات العملاء مسددة وخالصة تماماً.</p>
+        <p class="text-xs text-slate-400 mt-1">جميع الأجهزة المسلمة مسددة الحساب بالكامل.</p>
     </div>
 
 </main>
@@ -216,7 +216,6 @@
     async function fetchClients() {
         showLoading(true);
         try {
-            // جلب الأجهزة من كلا المسارين المحتملين لضمان قراءة البيانات
             let devices = [];
             
             const [resDev, resData] = await Promise.allSettled([
@@ -257,16 +256,30 @@
                 clientsMap[name].devices.push(d);
             });
 
-            // حساب الأرصدة وتصفية من عليهم أو لهم فلوس فقط
             let totalDebtAll = 0;
             let totalCreditAll = 0;
             pendingClients = [];
 
             Object.values(clientsMap).forEach(c => {
-                const totalCost = c.devices.reduce((sum, d) => sum + (Number(d.cost) || 0), 0);
-                const totalPaid = c.devices.reduce((sum, d) => sum + (Number(d.paid) || 0), 0);
-                const balance = totalCost - totalPaid; // موجب = عليه دين، سالب = دافع زيادة (له فلوس)
+                let effectiveCost = 0;
+                let totalPaid = 0;
 
+                c.devices.forEach(d => {
+                    const status = (d.status || '').trim();
+                    const cost = Number(d.cost) || 0;
+                    const paid = Number(d.paid) || 0;
+
+                    totalPaid += paid;
+
+                    // احتساب التكلفة فقط إذا كان الجهاز بحالة "تم التسليم"
+                    if (status === 'تم التسليم') {
+                        effectiveCost += cost;
+                    }
+                });
+
+                const balance = effectiveCost - totalPaid;
+
+                // إظهار العميل فقط إذا كان عليه دين في جهاز مسلم، أو له فلوس دافعها مقدماً
                 if (balance !== 0) {
                     const isDebt = balance > 0;
                     const amount = Math.abs(balance);
@@ -276,7 +289,7 @@
 
                     pendingClients.push({
                         ...c,
-                        totalCost,
+                        effectiveCost,
                         totalPaid,
                         balance,
                         isDebt,
@@ -285,10 +298,8 @@
                 }
             });
 
-            // الترتيب من الأحدث
             pendingClients.sort((a, b) => (b.latestTime || 0) - (a.latestTime || 0));
 
-            // تحديث الإحصائيات العلوية
             document.getElementById('statClientCount').innerText = pendingClients.length;
             document.getElementById('statClientDebt').innerText = `${totalDebtAll.toLocaleString('ar-EG')} ج.م`;
             document.getElementById('statClientCredit').innerText = `${totalCreditAll.toLocaleString('ar-EG')} ج.م`;
