@@ -146,7 +146,7 @@
     </div>
 
     <!-- Bulk Action Float Bar -->
-    <div id="bulkActionBar" class="hidden glass-card p-3 rounded-2xl border-indigo-500/40 bg-indigo-950/40 flex items-center justify-between animate-fade-in shadow-xl">
+    <div id="bulkActionBar" class="hidden glass-card p-3 rounded-2xl border-indigo-500/40 bg-indigo-950/40 flex items-center justify-between shadow-xl">
         <div class="flex items-center gap-2 text-xs font-bold text-indigo-200">
             <i class="fas fa-check-double text-indigo-400"></i>
             <span>تم تحديد <span id="selectedCountText" class="text-white font-black text-sm">0</span> قطعة</span>
@@ -164,9 +164,7 @@
     </div>
 
     <!-- Parts Grid -->
-    <div id="partsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Rendered via JS -->
-    </div>
+    <div id="partsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
 
     <!-- Empty State -->
     <div id="emptyState" class="hidden glass-card p-12 rounded-3xl text-center">
@@ -271,7 +269,12 @@
             if (!res.ok) return;
             const data = await res.json();
             partsState = data || {};
-            selectedPartIds.clear();
+            
+            const currentIds = Object.keys(partsState);
+            selectedPartIds.forEach(id => {
+                if (!currentIds.includes(id)) selectedPartIds.delete(id);
+            });
+
             updateBulkActionBar();
             renderParts();
         } catch (e) {
@@ -282,44 +285,76 @@
 
     function renderParts() {
         const cont = document.getElementById('partsContainer');
+        const emptyState = document.getElementById('emptyState');
+        const selectAllCb = document.getElementById('selectAllCheckbox');
+        const countBadge = document.getElementById('partsCountBadge');
+        
         cont.innerHTML = '';
         const parts = Object.values(partsState);
-        document.getElementById('partsCountBadge').innerText = `${parts.length} قطع`;
+        countBadge.innerText = `${parts.length} قطع`;
 
-        const selectAllCb = document.getElementById('selectAllCheckbox');
         if (parts.length === 0) {
-            document.getElementById('emptyState').classList.remove('hidden');
-            selectAllCb.checked = false;
-            selectAllCb.disabled = true;
+            emptyState.classList.remove('hidden');
+            if (selectAllCb) {
+                selectAllCb.checked = false;
+                selectAllCb.disabled = true;
+            }
             return;
         }
         
-        selectAllCb.disabled = false;
-        selectAllCb.checked = parts.length > 0 && selectedPartIds.size === parts.length;
-        document.getElementById('emptyState').classList.add('hidden');
+        emptyState.classList.add('hidden');
+        if (selectAllCb) {
+            selectAllCb.disabled = false;
+            selectAllCb.checked = (selectedPartIds.size === parts.length && parts.length > 0);
+        }
 
         parts.forEach(p => {
             const isSelected = selectedPartIds.has(p.id);
-            cont.innerHTML += `
-                <div class="glass-card p-4 rounded-2xl flex flex-col justify-between border-rose-500/20 glass-card-hover ${isSelected ? 'border-indigo-500/60 bg-indigo-950/20' : ''}">
-                    <div class="flex items-start gap-3">
-                        <input type="checkbox" onchange="toggleSelectPart('${p.id}', this.checked)" ${isSelected ? 'checked' : ''} class="mt-1 w-4 h-4 rounded text-indigo-600 focus:ring-0 cursor-pointer">
-                        <div class="flex-1 min-w-0">
-                            <h5 class="text-sm font-bold text-rose-400 break-words">${escapeHtml(p.name)}</h5>
-                            <p class="text-xs text-slate-400 mt-1 truncate"><i class="fas fa-link ml-1 text-indigo-400"></i>جهاز: ${escapeHtml(p.devInfo || 'غير محدد')}</p>
-                        </div>
-                    </div>
+            const card = document.createElement('div');
+            card.className = `glass-card p-4 rounded-2xl flex flex-col justify-between border-rose-500/20 glass-card-hover ${isSelected ? 'border-indigo-500/60 bg-indigo-950/20' : ''}`;
+            
+            const topDiv = document.createElement('div');
+            topDiv.className = 'flex items-start gap-3';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = isSelected;
+            checkbox.className = 'mt-1 w-4 h-4 rounded text-indigo-600 focus:ring-0 cursor-pointer';
+            checkbox.onchange = (e) => toggleSelectPart(p.id, e.target.checked);
+            
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'flex-1 min-w-0';
+            
+            const title = document.createElement('h5');
+            title.className = 'text-sm font-bold text-rose-400 break-words';
+            title.textContent = p.name || '';
+            
+            const sub = document.createElement('p');
+            sub.className = 'text-xs text-slate-400 mt-1 truncate';
+            sub.innerHTML = `<i class="fas fa-link ml-1 text-indigo-400"></i>جهاز: `;
+            const subText = document.createTextNode(p.devInfo || 'غير محدد');
+            sub.appendChild(subText);
+            
+            infoDiv.appendChild(title);
+            infoDiv.appendChild(sub);
+            topDiv.appendChild(checkbox);
+            topDiv.appendChild(infoDiv);
 
-                    <div class="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-white/5">
-                        <button onclick="deleteSinglePart('${p.id}')" title="حذف القطعة" class="bg-red-500/10 hover:bg-red-600 text-red-400 hover:text-white text-xs p-2 rounded-xl transition">
-                            <i class="fas fa-trash-can"></i>
-                        </button>
-                        <button onclick="resolvePart('${p.id}', '${p.deviceId || ''}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white text-xs px-3 py-1.5 rounded-xl transition font-semibold flex items-center gap-1">
-                            <i class="fas fa-check"></i>
-                            <span>تم التوفير</span>
-                        </button>
-                    </div>
-                </div>`;
+            const bottomDiv = document.createElement('div');
+            bottomDiv.className = 'flex items-center justify-end gap-2 mt-4 pt-3 border-t border-white/5';
+            bottomDiv.innerHTML = `
+                <button onclick="deleteSinglePart('${p.id}')" title="حذف القطعة" class="bg-red-500/10 hover:bg-red-600 text-red-400 hover:text-white text-xs p-2 rounded-xl transition">
+                    <i class="fas fa-trash-can"></i>
+                </button>
+                <button onclick="resolvePart('${p.id}', '${p.deviceId || ''}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white text-xs px-3 py-1.5 rounded-xl transition font-semibold flex items-center gap-1">
+                    <i class="fas fa-check"></i>
+                    <span>تم التوفير</span>
+                </button>
+            `;
+
+            card.appendChild(topDiv);
+            card.appendChild(bottomDiv);
+            cont.appendChild(card);
         });
     }
 
@@ -346,12 +381,16 @@
 
     function updateBulkActionBar() {
         const bar = document.getElementById('bulkActionBar');
+        const countText = document.getElementById('selectedCountText');
         const count = selectedPartIds.size;
-        document.getElementById('selectedCountText').innerText = count;
-        if (count > 0) {
-            bar.classList.remove('hidden');
-        } else {
-            bar.classList.add('hidden');
+        
+        if (countText) countText.innerText = count;
+        if (bar) {
+            if (count > 0) {
+                bar.classList.remove('hidden');
+            } else {
+                bar.classList.add('hidden');
+            }
         }
     }
 
@@ -359,6 +398,7 @@
         if (!confirm("هل أنت متأكد من رغبتك في حذف هذه القطعة من قائمة النواقص؟")) return;
         showLoading(true);
         await fetch(`${BASE_DB_URL}/data/parts/${partId}.json`, { method: "DELETE" });
+        selectedPartIds.delete(partId);
         showLoading(false);
         fetchParts();
     }
@@ -411,6 +451,7 @@
                     body: JSON.stringify({ status: "قيد الصيانة" })
                 });
             }
+            selectedPartIds.delete(partId);
             showLoading(false);
             fetchParts();
         }
@@ -467,23 +508,6 @@
     function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
     function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('hidden', !show); }
-    function escapeHtml(s) { return s ? String(s).replace(/[&<>'"]/g, t => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]||t)) : ''; }
-</script>
-</body>
-</html>
-ط"; }, 2000);
-        });
-    }
-
-    function sendToWhatsApp() {
-        const encoded = encodeURIComponent(currentShareContent);
-        window.open(`https://api.whatsapp.com/send?text=${encoded}`, '_blank');
-    }
-
-    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-    function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('hidden', !show); }
-    function escapeHtml(s) { return s ? String(s).replace(/[&<>'"]/g, t => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]||t)) : ''; }
 </script>
 </body>
 </html>
