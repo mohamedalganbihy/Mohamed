@@ -431,7 +431,6 @@
             return;
         }
 
-        // بناء رابط المورد التفاعلي
         const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
         let supplierLink = `${baseUrl}/supplier.html`;
         if (mode === 'selected') {
@@ -439,21 +438,13 @@
             supplierLink += `?ids=${idsList}`;
         }
 
-        const dateStr = new Date().toLocaleDateString('ar-EG', { dateStyle: 'medium' });
-        
-        let text = `📋 *طلب قطع غيار ونواقص - سنترال محمد الجنبيهي*\n`;
-        text += `📅 التاريخ: ${dateStr}\n`;
-        text += `🔢 إجمالي القطع المطلوبة: ${listToShare.length}\n`;
-        text += `────────────────────\n\n`;
+        let text = `📦قطع الغيار المطلوبة\n\n`;
 
-        listToShare.forEach((p, idx) => {
-            text += `${idx + 1}️⃣ ${p.name}\n`;
+        listToShare.forEach((p) => {
+            text += `  ❏ ${p.name}\n`;
         });
 
-        text += `\n🔗 *رابط مراجعة وتأكيد توفير القطع مباشرة:*\n`;
-        text += `${supplierLink}\n\n`;
-        text += `────────────────────\n`;
-        text += `يرجى فتح الرابط وتأكيد القطع المتوفرة. شكراً لكم.`;
+        text += `\n🔗 *رابط التأكيد والتوفير:*\n${supplierLink}`;
 
         currentShareContent = text;
         document.getElementById('shareTextPreview').value = text;
@@ -465,6 +456,22 @@
             const btnText = document.getElementById('copyBtnText');
             btnText.innerText = "تم النسخ بنجاح!";
             setTimeout(() => { btnText.innerText = "نسخ النص والرابط"; }, 2000);
+        });
+    }
+
+    function sendToWhatsApp() {
+        const encoded = encodeURIComponent(currentShareContent);
+        window.open(`https://api.whatsapp.com/send?text=${encoded}`, '_blank');
+    }
+
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('hidden', !show); }
+    function escapeHtml(s) { return s ? String(s).replace(/[&<>'"]/g, t => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]||t)) : ''; }
+</script>
+</body>
+</html>
+ط"; }, 2000);
         });
     }
 
