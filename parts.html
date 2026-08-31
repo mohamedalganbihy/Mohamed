@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -67,7 +67,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen pb-20 md:pb-10 flex flex-col">
+<body class="min-h-screen pb-28 md:pb-16 flex flex-col">
 
 <!-- Loading Spinner Overlay -->
 <div id="loadingOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md hidden">
@@ -115,9 +115,13 @@
         </nav>
 
         <div class="flex items-center gap-2">
+            <button onclick="shareParts('all')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-emerald-600/30 transition flex items-center gap-1.5">
+                <i class="fas fa-share-nodes"></i>
+                <span class="hidden sm:inline">مشاركة الكل</span>
+            </button>
             <button onclick="openModal('addShortageModal')" class="bg-rose-600 hover:bg-rose-500 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-rose-600/30 transition flex items-center gap-1.5">
                 <i class="fas fa-plus"></i>
-                <span>إضافة قطعة ناقصة</span>
+                <span>إضافة قطعة</span>
             </button>
         </div>
     </div>
@@ -126,12 +130,37 @@
 <!-- MAIN CONTENT -->
 <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 flex-1 w-full space-y-4">
 
-    <div class="glass-card p-4 rounded-2xl flex items-center justify-between border-rose-500/20">
-        <div class="flex items-center gap-2 text-rose-400">
-            <i class="fas fa-boxes-stacked text-lg"></i>
-            <h3 class="text-sm font-bold">قائمة قطع الغيار المطلوبة لصيانة الأجهزة</h3>
+    <!-- Top Bar Controls -->
+    <div class="glass-card p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3 border-rose-500/20">
+        <div class="flex items-center gap-3">
+            <label class="flex items-center gap-2 cursor-pointer select-none text-xs text-slate-300 font-semibold bg-dark-bg/60 px-3 py-1.5 rounded-xl border border-white/5">
+                <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this.checked)" class="w-4 h-4 rounded text-indigo-600 focus:ring-0 cursor-pointer">
+                <span>تحديد الكل</span>
+            </label>
+            <div class="flex items-center gap-2 text-rose-400">
+                <i class="fas fa-boxes-stacked text-base"></i>
+                <h3 class="text-sm font-bold hidden sm:inline">قائمة قطع الغيار المطلوبة</h3>
+            </div>
         </div>
         <span id="partsCountBadge" class="bg-rose-500/20 text-rose-300 text-xs px-2.5 py-1 rounded-full font-bold">0 قطع</span>
+    </div>
+
+    <!-- Bulk Action Float Bar -->
+    <div id="bulkActionBar" class="hidden glass-card p-3 rounded-2xl border-indigo-500/40 bg-indigo-950/40 flex items-center justify-between animate-fade-in shadow-xl">
+        <div class="flex items-center gap-2 text-xs font-bold text-indigo-200">
+            <i class="fas fa-check-double text-indigo-400"></i>
+            <span>تم تحديد <span id="selectedCountText" class="text-white font-black text-sm">0</span> قطعة</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="shareParts('selected')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5">
+                <i class="fas fa-paper-plane"></i>
+                <span>مشاركة المحدد</span>
+            </button>
+            <button onclick="deleteSelectedParts()" class="bg-red-600/80 hover:bg-red-600 text-white text-xs px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5">
+                <i class="fas fa-trash-can"></i>
+                <span>حذف المحدد</span>
+            </button>
+        </div>
     </div>
 
     <!-- Parts Grid -->
@@ -197,9 +226,40 @@
     </div>
 </div>
 
+<!-- MODAL: SHARE OPTIONS -->
+<div id="shareModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+    <div class="glass-card bg-dark-card border border-emerald-500/30 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl">
+        <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+            <h3 class="text-sm font-bold text-emerald-400 flex items-center gap-2">
+                <i class="fas fa-share-nodes"></i> مشاركة النواقص مع المورد
+            </h3>
+            <button onclick="closeModal('shareModal')" class="text-slate-400 hover:text-white"><i class="fas fa-xmark text-lg"></i></button>
+        </div>
+
+        <div class="p-6 space-y-4">
+            <div class="relative">
+                <textarea id="shareTextPreview" rows="7" readonly class="w-full bg-dark-bg border border-white/10 rounded-xl p-3 text-xs text-slate-200 font-mono leading-relaxed focus:outline-none select-all"></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="copyShareText()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2">
+                    <i class="fas fa-copy"></i>
+                    <span id="copyBtnText">نسخ النص والرابط</span>
+                </button>
+                <button onclick="sendToWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2">
+                    <i class="fab fa-whatsapp text-sm"></i>
+                    <span>إرسال عبر واتساب</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     const BASE_DB_URL = "https://repairshop-e2483-default-rtdb.firebaseio.com";
     let partsState = {};
+    let selectedPartIds = new Set();
+    let currentShareContent = "";
 
     document.addEventListener('DOMContentLoaded', fetchParts);
 
@@ -211,6 +271,8 @@
             if (!res.ok) return;
             const data = await res.json();
             partsState = data || {};
+            selectedPartIds.clear();
+            updateBulkActionBar();
             renderParts();
         } catch (e) {
             showLoading(false);
@@ -224,24 +286,95 @@
         const parts = Object.values(partsState);
         document.getElementById('partsCountBadge').innerText = `${parts.length} قطع`;
 
+        const selectAllCb = document.getElementById('selectAllCheckbox');
         if (parts.length === 0) {
             document.getElementById('emptyState').classList.remove('hidden');
+            selectAllCb.checked = false;
+            selectAllCb.disabled = true;
             return;
         }
+        
+        selectAllCb.disabled = false;
+        selectAllCb.checked = parts.length > 0 && selectedPartIds.size === parts.length;
         document.getElementById('emptyState').classList.add('hidden');
 
         parts.forEach(p => {
+            const isSelected = selectedPartIds.has(p.id);
             cont.innerHTML += `
-                <div class="glass-card p-4 rounded-2xl flex items-center justify-between border-rose-500/20 glass-card-hover">
-                    <div>
-                        <h5 class="text-sm font-bold text-rose-400">${escapeHtml(p.name)}</h5>
-                        <p class="text-xs text-slate-400 mt-1"><i class="fas fa-link ml-1 text-indigo-400"></i>جهاز: ${escapeHtml(p.devInfo)}</p>
+                <div class="glass-card p-4 rounded-2xl flex flex-col justify-between border-rose-500/20 glass-card-hover ${isSelected ? 'border-indigo-500/60 bg-indigo-950/20' : ''}">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" onchange="toggleSelectPart('${p.id}', this.checked)" ${isSelected ? 'checked' : ''} class="mt-1 w-4 h-4 rounded text-indigo-600 focus:ring-0 cursor-pointer">
+                        <div class="flex-1 min-w-0">
+                            <h5 class="text-sm font-bold text-rose-400 break-words">${escapeHtml(p.name)}</h5>
+                            <p class="text-xs text-slate-400 mt-1 truncate"><i class="fas fa-link ml-1 text-indigo-400"></i>جهاز: ${escapeHtml(p.devInfo || 'غير محدد')}</p>
+                        </div>
                     </div>
-                    <button onclick="resolvePart('${p.id}', '${p.deviceId}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white text-xs px-3 py-1.5 rounded-xl transition font-semibold">
-                        <i class="fas fa-check ml-1"></i> تم التوفير
-                    </button>
+
+                    <div class="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-white/5">
+                        <button onclick="deleteSinglePart('${p.id}')" title="حذف القطعة" class="bg-red-500/10 hover:bg-red-600 text-red-400 hover:text-white text-xs p-2 rounded-xl transition">
+                            <i class="fas fa-trash-can"></i>
+                        </button>
+                        <button onclick="resolvePart('${p.id}', '${p.deviceId || ''}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white text-xs px-3 py-1.5 rounded-xl transition font-semibold flex items-center gap-1">
+                            <i class="fas fa-check"></i>
+                            <span>تم التوفير</span>
+                        </button>
+                    </div>
                 </div>`;
         });
+    }
+
+    function toggleSelectPart(id, isChecked) {
+        if (isChecked) {
+            selectedPartIds.add(id);
+        } else {
+            selectedPartIds.delete(id);
+        }
+        updateBulkActionBar();
+        renderParts();
+    }
+
+    function toggleSelectAll(isChecked) {
+        const parts = Object.values(partsState);
+        if (isChecked) {
+            parts.forEach(p => selectedPartIds.add(p.id));
+        } else {
+            selectedPartIds.clear();
+        }
+        updateBulkActionBar();
+        renderParts();
+    }
+
+    function updateBulkActionBar() {
+        const bar = document.getElementById('bulkActionBar');
+        const count = selectedPartIds.size;
+        document.getElementById('selectedCountText').innerText = count;
+        if (count > 0) {
+            bar.classList.remove('hidden');
+        } else {
+            bar.classList.add('hidden');
+        }
+    }
+
+    async function deleteSinglePart(partId) {
+        if (!confirm("هل أنت متأكد من رغبتك في حذف هذه القطعة من قائمة النواقص؟")) return;
+        showLoading(true);
+        await fetch(`${BASE_DB_URL}/data/parts/${partId}.json`, { method: "DELETE" });
+        showLoading(false);
+        fetchParts();
+    }
+
+    async function deleteSelectedParts() {
+        if (selectedPartIds.size === 0) return;
+        if (!confirm(`هل أنت متأكد من حذف (${selectedPartIds.size}) قطع محددة من النواقص؟`)) return;
+
+        showLoading(true);
+        const promises = Array.from(selectedPartIds).map(id => 
+            fetch(`${BASE_DB_URL}/data/parts/${id}.json`, { method: "DELETE" })
+        );
+        await Promise.all(promises);
+        showLoading(false);
+        selectedPartIds.clear();
+        fetchParts();
     }
 
     async function handleCreateShortage(e) {
@@ -281,6 +414,63 @@
             showLoading(false);
             fetchParts();
         }
+    }
+
+    function shareParts(mode) {
+        let listToShare = [];
+        const allParts = Object.values(partsState);
+
+        if (mode === 'selected') {
+            listToShare = allParts.filter(p => selectedPartIds.has(p.id));
+        } else {
+            listToShare = allParts;
+        }
+
+        if (listToShare.length === 0) {
+            alert("لا توجد قطع لمشاركتها!");
+            return;
+        }
+
+        // بناء رابط المورد التفاعلي
+        const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+        let supplierLink = `${baseUrl}/supplier.html`;
+        if (mode === 'selected') {
+            const idsList = listToShare.map(p => p.id).join(',');
+            supplierLink += `?ids=${idsList}`;
+        }
+
+        const dateStr = new Date().toLocaleDateString('ar-EG', { dateStyle: 'medium' });
+        
+        let text = `📋 *طلب قطع غيار ونواقص - سنترال محمد الجنبيهي*\n`;
+        text += `📅 التاريخ: ${dateStr}\n`;
+        text += `🔢 إجمالي القطع المطلوبة: ${listToShare.length}\n`;
+        text += `────────────────────\n\n`;
+
+        listToShare.forEach((p, idx) => {
+            text += `${idx + 1}️⃣ ${p.name}\n`;
+        });
+
+        text += `\n🔗 *رابط مراجعة وتأكيد توفير القطع مباشرة:*\n`;
+        text += `${supplierLink}\n\n`;
+        text += `────────────────────\n`;
+        text += `يرجى فتح الرابط وتأكيد القطع المتوفرة. شكراً لكم.`;
+
+        currentShareContent = text;
+        document.getElementById('shareTextPreview').value = text;
+        openModal('shareModal');
+    }
+
+    function copyShareText() {
+        navigator.clipboard.writeText(currentShareContent).then(() => {
+            const btnText = document.getElementById('copyBtnText');
+            btnText.innerText = "تم النسخ بنجاح!";
+            setTimeout(() => { btnText.innerText = "نسخ النص والرابط"; }, 2000);
+        });
+    }
+
+    function sendToWhatsApp() {
+        const encoded = encodeURIComponent(currentShareContent);
+        window.open(`https://api.whatsapp.com/send?text=${encoded}`, '_blank');
     }
 
     function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
